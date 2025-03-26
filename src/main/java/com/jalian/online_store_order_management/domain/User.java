@@ -1,5 +1,6 @@
 package com.jalian.online_store_order_management.domain;
 
+import com.jalian.online_store_order_management.dto.UserRegisterDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
@@ -41,6 +42,16 @@ public class User extends BaseDomain {
         this.firstName = firstName;
         this.email = email;
         this.lastName = lastName;
+    }
+
+    public static User of(UserRegisterDto userRegisterDto) {
+        var user = new User();
+        user.setEmail(userRegisterDto.email());
+        user.setFirstName(userRegisterDto.firstName());
+        user.setLastName(userRegisterDto.lastName());
+        user.setUsername(userRegisterDto.username());
+        user.setPassword(userRegisterDto.password());
+        return user;
     }
 
     @Override
