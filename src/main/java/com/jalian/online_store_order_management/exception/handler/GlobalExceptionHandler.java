@@ -1,5 +1,6 @@
 package com.jalian.online_store_order_management.exception.handler;
 
+import com.jalian.online_store_order_management.exception.ConstraintViolationException;
 import com.jalian.online_store_order_management.exception.DuplicateUsername;
 import com.jalian.online_store_order_management.exception.EntityNotFoundException;
 import com.jalian.online_store_order_management.exception.ValidationException;
@@ -16,7 +17,7 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler({DuplicateUsername.class, ValidationException.class})
+    @ExceptionHandler({DuplicateUsername.class, ValidationException.class, ConstraintViolationException.class})
     public ResponseEntity<ErrorResponse> handleDuplicateUsernameAndValidationException(Exception ex) {
         var errorResponse = new ErrorResponse(ex);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);

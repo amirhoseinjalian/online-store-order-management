@@ -1,7 +1,9 @@
 package com.jalian.online_store_order_management.domain;
 
+import com.jalian.online_store_order_management.dto.AddStoreDto;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,6 +26,13 @@ public class Store extends BaseDomain {
     }
 
     public Store() {}
+
+    public static Store of(AddStoreDto addStoreDto) {
+        var store = new Store();
+        store.name = addStoreDto.name();
+        store.users = new ArrayList<>();
+        return store;
+    }
 
     @Override
     public boolean equals(Object o) {
