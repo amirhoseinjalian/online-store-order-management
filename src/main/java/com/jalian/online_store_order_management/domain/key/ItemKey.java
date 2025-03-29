@@ -1,13 +1,18 @@
 package com.jalian.online_store_order_management.domain.key;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
+import java.io.Serializable;
 import java.util.Objects;
 
 @Embeddable
-public class ItemKey {
+public class ItemKey implements Serializable {
 
+    @Column(name = "order_id", nullable = false)
     private Long orderId;
+
+    @Column(name = "product_id", nullable = false)
     private Long productId;
 
     public ItemKey(Long orderId, Long productId) {

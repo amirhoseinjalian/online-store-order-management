@@ -11,6 +11,6 @@ INSERT INTO product (name, description, price, inventory, store_id) VALUES
                                                                         ('Novel B', 'Critically acclaimed book', 20.99, 150, 2);
 
 -- Insert sample Users (table name is "users" as defined by @Table(name = "users"))
-INSERT INTO users (username, password, first_name, last_name, email) VALUES
-                                                                       ('alice', 'password123', 'Alice', 'Johnson', 'alice@example.com'),
-                                                                       ('bob', 'password123', 'Bob', 'Williams', 'bob@example.com');
+INSERT INTO users (username, password, first_name, last_name, email, balance) VALUES
+                                                                       ('alice', 'password123', 'Alice', 'Johnson', 'alice@example.com', 0),
+                                                                       ('bob', 'password123', 'Bob', 'Williams', 'bob@example.com', 0);

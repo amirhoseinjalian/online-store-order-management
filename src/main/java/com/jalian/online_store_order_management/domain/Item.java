@@ -6,17 +6,19 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-public class Item extends BaseDomain {
+public class Item extends Auditable {
 
-    @Embedded
-    private ItemKey primaryKey;
+    @EmbeddedId
+    private ItemKey id;
 
     @ManyToOne(targetEntity = Product.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "product_id", nullable = false)
+    @MapsId("productId")
     private Product product;
 
     @ManyToOne(targetEntity = Order.class, fetch = FetchType.EAGER)
     @JoinColumn(name = "order_id", nullable = false)
+    @MapsId("orderId")
     private Order order;
 
     private long count;
@@ -27,7 +29,7 @@ public class Item extends BaseDomain {
     }
 
     public Item(ItemKey primaryKey, Product product, Order order, long count, long presentInventory) {
-        this.primaryKey = primaryKey;
+        this.id = primaryKey;
         this.product = product;
         this.order = order;
         this.count = count;
@@ -35,11 +37,11 @@ public class Item extends BaseDomain {
     }
 
     public ItemKey getPrimaryKey() {
-        return primaryKey;
+        return id;
     }
 
     public void setPrimaryKey(ItemKey pKey) {
-        this.primaryKey = pKey;
+        this.id = pKey;
     }
 
     public Product getProduct() {
@@ -90,7 +92,7 @@ public class Item extends BaseDomain {
     public String toString() {
         final var sb = new StringBuffer("OrderProduct{");
         appendFields(sb);
-        sb.append(", primaryKey=").append(primaryKey);
+        sb.append(", primaryKey=").append(id);
         sb.append(", product=").append(product);
         sb.append(", order=").append(order);
         sb.append(", count=").append(count);
