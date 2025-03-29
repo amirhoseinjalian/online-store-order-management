@@ -24,6 +24,9 @@ public class BaseDomain {
     @Column(insertable = false)
     private LocalDateTime updatedAt;
 
+    @Version
+    private Long version;
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof BaseDomain that)) return false;
@@ -71,5 +74,13 @@ public class BaseDomain {
 
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    public void setVersion(Long version) {
+        this.version = version;
     }
 }

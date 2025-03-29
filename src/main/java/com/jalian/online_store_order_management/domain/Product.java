@@ -24,6 +24,7 @@ public class Product extends BaseDomain {
     private Store store;
 
     public Product() {
+        inventory = 0L;
     }
 
     public Product(Store store, double price, String description, String name) {
@@ -31,6 +32,7 @@ public class Product extends BaseDomain {
         this.price = price;
         this.description = description;
         this.name = name;
+        this.inventory = 0;
     }
 
     @Override
