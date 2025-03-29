@@ -36,11 +36,11 @@ public class ProductEndpoint {
         );
     }
 
-    @PutMapping("/operate/{sleep}")
-    public ResponseEntity<BaseResponse<ProductFetchDto>> doOperation(@RequestBody ProductOperationDto ProductOperationDto, @PathVariable int sleep) {
+    @PutMapping("/operate")
+    public ResponseEntity<BaseResponse<ProductFetchDto>> doOperation(@RequestBody ProductOperationDto ProductOperationDto) {
         return new ResponseEntity<>(
                 new BaseResponse<>(
-                        productService.doOperation(ProductOperationDto, sleep),
+                        productService.doOperation(ProductOperationDto),
                         "Operation done successfully"
                 ),
                 HttpStatus.OK

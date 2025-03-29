@@ -10,5 +10,5 @@ public interface ProductService {
 
     ProductFetchDto getProductById(Long productId);
 
-    ProductFetchDto doOperation(ProductOperationDto dto, int sleep);
+    ProductFetchDto doOperation(ProductOperationDto dto);
 }

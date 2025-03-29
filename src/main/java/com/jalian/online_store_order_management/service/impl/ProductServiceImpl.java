@@ -74,15 +74,10 @@ public class ProductServiceImpl implements ProductService {
             recover = "recoverDoOperation"
     )
     @Valid
-    public ProductFetchDto doOperation(@NotNull ProductOperationDto dto, int sleep) {
+    public ProductFetchDto doOperation(@NotNull ProductOperationDto dto) {
         var product = productDao.findByIdSafe(dto.productId());
         var operator = ProductInventoryOperatorFactory.getInstance(dto.strategy());
         product = operator.doOperation(product, dto.amount());
-        try {
-            Thread.sleep(sleep * 1000L);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
         return ProductFetchDto.of(productDao.save(product));
     }
 
