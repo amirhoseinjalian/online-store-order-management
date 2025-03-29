@@ -41,10 +41,20 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional(readOnly = true)
     @Valid
-    public UserFetchDto findUserById(@Full Long id) throws EntityNotFoundException {
+    public UserFetchDto findUserById(@NotNull Long id) throws EntityNotFoundException {
+        return UserFetchDto.of(findByIdInternal(id));
+    }
+
+    private User findByIdInternal(Long id) {
         if (!userDao.existsById(id)) {
             throw new EntityNotFoundException(User.class.getSimpleName(), "id", id.toString());
         }
-        return UserFetchDto.of(userDao.findUserById(id));
+        return userDao.findUserById(id);
+    }
+
+    @Override
+    @Transactional
+    public User findUserEntityById(Long id) throws EntityNotFoundException {
+        return findByIdInternal(id);
     }
 }

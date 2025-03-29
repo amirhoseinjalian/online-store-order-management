@@ -8,6 +8,7 @@ import com.jalian.online_store_order_management.dto.AddStoreDto;
 import com.jalian.online_store_order_management.exception.ConstraintViolationException;
 import com.jalian.online_store_order_management.exception.EntityNotFoundException;
 import com.jalian.online_store_order_management.service.StoreService;
+import com.jalian.online_store_order_management.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 public class StoreServiceImpl implements StoreService {
 
     private final StoreDao storeDao;
+    private final UserService userService;
 
-    public StoreServiceImpl(StoreDao storeDao) {
+    public StoreServiceImpl(StoreDao storeDao, UserService userService) {
         this.storeDao = storeDao;
+        this.userService = userService;
     }
 
     @Override
@@ -38,12 +41,27 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     @Valid
     public Store findStore(@NotNull Long storeId) {
-        return storeDao.findById(storeId)
-                .orElseThrow(
-                        () -> new EntityNotFoundException(Store.class.getSimpleName(), "id", storeId.toString())
-                );
+        return findStoreInternal(storeId);
+    }
+
+    private Store findStoreInternal(Long storeId) {
+        if (!storeDao.existsById(storeId)) {
+            throw new EntityNotFoundException(Store.class.getSimpleName(), "id", storeId.toString());
+        }
+        return storeDao.findByIdSafe(storeId);
+    }
+
+    @Override
+    @Transactional
+    public boolean belongToStore(Long storeId, Long userId) {
+        var store = findStoreInternal(storeId);
+        if (store.getUsers() == null || store.getUsers().isEmpty()) {
+            return false;
+        }
+        var user = userService.findUserEntityById(userId);
+        return store.getUsers().contains(user);
     }
 }

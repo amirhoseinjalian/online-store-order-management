@@ -7,6 +7,7 @@ import com.jalian.online_store_order_management.domain.Product;
 import com.jalian.online_store_order_management.dto.ProductDto;
 import com.jalian.online_store_order_management.dto.ProductFetchDto;
 import com.jalian.online_store_order_management.dto.ProductOperationDto;
+import com.jalian.online_store_order_management.exception.EntityNotFoundException;
 import com.jalian.online_store_order_management.exception.RecoveryException;
 import com.jalian.online_store_order_management.exception.ValidationException;
 import com.jalian.online_store_order_management.factory.ProductInventoryOperatorFactory;
@@ -57,7 +58,19 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(isolation = Isolation.REPEATABLE_READ)
     @Valid
     public ProductFetchDto getProductById(@NotNull Long productId) {
-        return ProductFetchDto.of(productDao.findByIdSafe(productId));
+        return ProductFetchDto.of(findEntityById(productId));
+    }
+
+    private Product findEntityById(Long productId) {
+        if (productDao.findById(productId).isEmpty()) {
+            throw new EntityNotFoundException("Product with id " + productId + " does not exist");
+        }
+        return productDao.findByIdSafe(productId);
+    }
+
+    @Transactional
+    public Product findProductById(@NotNull Long productId) {
+        return findEntityById(productId);
     }
 
     @Override
@@ -79,6 +92,20 @@ public class ProductServiceImpl implements ProductService {
         var operator = ProductInventoryOperatorFactory.getInstance(dto.strategy());
         product = operator.doOperation(product, dto.amount());
         return ProductFetchDto.of(productDao.save(product));
+    }
+
+    @Override
+    @Transactional
+    public boolean belongsToStore(Long productId, Long storeId) {
+        var product = productDao.findByIdSafe(productId);
+        var store = storeService.findStore(storeId);
+        return product.getStore().equals(store);
+    }
+
+    @Override
+    @Transactional
+    public boolean existsById(Long productId) {
+        return productDao.existsById(productId);
     }
 
     @Recover

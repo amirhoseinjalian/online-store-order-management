@@ -24,6 +24,8 @@ public class User extends BaseDomain {
     @Column(name = "last_name")
     private String lastName;
 
+    private double balance;
+
     @Email
     private String email;
 
@@ -42,6 +44,7 @@ public class User extends BaseDomain {
         this.firstName = firstName;
         this.email = email;
         this.lastName = lastName;
+        balance = 0.0;
     }
 
     public static User of(UserRegisterDto userRegisterDto) {
@@ -51,6 +54,7 @@ public class User extends BaseDomain {
         user.setLastName(userRegisterDto.lastName());
         user.setUsername(userRegisterDto.username());
         user.setPassword(userRegisterDto.password());
+        user.setBalance(0.0);
         return user;
     }
 
@@ -73,6 +77,7 @@ public class User extends BaseDomain {
         sb.append(", username='").append(username).append('\'');
         sb.append(", firstName='").append(firstName).append('\'');
         sb.append(", lastName='").append(lastName).append('\'');
+        sb.append(", balance=").append(balance);
         sb.append(", email='").append(email).append('\'');
         sb.append('}');
         return sb.toString();
@@ -116,5 +121,13 @@ public class User extends BaseDomain {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public double getBalance() {
+        return balance;
+    }
+
+    public void setBalance(double balance) {
+        this.balance = balance;
     }
 }

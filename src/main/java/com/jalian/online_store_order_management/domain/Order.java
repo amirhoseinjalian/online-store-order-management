@@ -3,7 +3,6 @@ package com.jalian.online_store_order_management.domain;
 import com.jalian.online_store_order_management.constant.OrderStatus;
 import jakarta.persistence.*;
 
-import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -13,25 +12,21 @@ public class Order extends BaseDomain {
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
 
-    @ManyToMany(targetEntity = Product.class, fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "order_product",
-            joinColumns = @JoinColumn(name = "order_id"),
-            inverseJoinColumns = @JoinColumn(name = "product_id")
-    )
-    private List<Product> products;
-
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "user_id", nullable = false)
     private User owner;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "store_id", nullable = false)
+    private Store store;
 
     public Order() {
     }
 
-    public Order(OrderStatus orderStatus, List<Product> products, User owner) {
+    public Order(OrderStatus orderStatus, User owner, Store store) {
         this.orderStatus = orderStatus;
-        this.products = products;
         this.owner = owner;
+        this.store = store;
     }
 
     @Override
@@ -51,9 +46,32 @@ public class Order extends BaseDomain {
         final var sb = new StringBuffer("Order{");
         appendFields(sb);
         sb.append(", orderStatus=").append(orderStatus);
-        sb.append(", products=").append(products);
         sb.append(", owner=").append(owner);
         sb.append('}');
         return sb.toString();
+    }
+
+    public OrderStatus getOrderStatus() {
+        return orderStatus;
+    }
+
+    public void setOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
+    }
+
+    public Store getStore() {
+        return store;
+    }
+
+    public void setStore(Store store) {
+        this.store = store;
     }
 }

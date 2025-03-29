@@ -10,4 +10,6 @@ public interface StoreService {
     boolean existStore(Long storeId);
 
     Store findStore(Long storeId);
+
+    boolean belongToStore(Long storeId, Long userId);
 }
