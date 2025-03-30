@@ -17,7 +17,14 @@ public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
-    @ExceptionHandler({DuplicateUsername.class, ValidationException.class, ConstraintViolationException.class})
+    @ExceptionHandler(
+            {
+                    DuplicateUsername.class,
+                    ValidationException.class,
+                    ConstraintViolationException.class,
+                    IllegalBalanceException.class
+            }
+    )
     public ResponseEntity<ErrorResponse> handleDuplicateUsernameAndValidationException(Exception ex) {
         var errorResponse = new ErrorResponse(ex);
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
@@ -31,7 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
     public ResponseEntity<ErrorResponse> handleHttpRequestMethodNotSupportedException() {
-        var errorResponse = new ErrorResponse("illegal http method");
+        var errorResponse = new ErrorResponse("Illegal http method");
         return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
 

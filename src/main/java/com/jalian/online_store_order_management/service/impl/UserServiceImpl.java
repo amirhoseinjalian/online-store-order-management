@@ -1,12 +1,15 @@
 package com.jalian.online_store_order_management.service.impl;
 
 import com.jalian.online_store_order_management.annotation.*;
+import com.jalian.online_store_order_management.constant.BalanceOperation;
 import com.jalian.online_store_order_management.dao.UserDao;
 import com.jalian.online_store_order_management.domain.User;
+import com.jalian.online_store_order_management.dto.UpdateBalanceDto;
 import com.jalian.online_store_order_management.dto.UserFetchDto;
 import com.jalian.online_store_order_management.dto.UserRegisterDto;
 import com.jalian.online_store_order_management.exception.DuplicateUsername;
 import com.jalian.online_store_order_management.exception.EntityNotFoundException;
+import com.jalian.online_store_order_management.exception.IllegalBalanceException;
 import com.jalian.online_store_order_management.service.UserService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,15 +49,36 @@ public class UserServiceImpl implements UserService {
     }
 
     private User findByIdInternal(Long id) {
-        if (userDao.findUserById(id).isEmpty()) {
+        var user = userDao.findUserById(id);
+        if (user.isEmpty()) {
             throw new EntityNotFoundException(User.class.getSimpleName(), "id", id.toString());
         }
-        return userDao.findUserById(id).get();
+        return user.get();
     }
 
     @Override
     @Transactional(readOnly = true)
     public User findUserEntityById(Long id) throws EntityNotFoundException {
         return findByIdInternal(id);
+    }
+
+    @Override
+    @Transactional
+    public UserFetchDto updateBalance(UpdateBalanceDto updateBalanceDto) {
+        var optionalUser = userDao.findUserByIdForUpdate(updateBalanceDto.userId());
+        if (optionalUser.isEmpty()) {
+            throw new EntityNotFoundException(User.class.getSimpleName(), "id", updateBalanceDto.userId().toString());
+        }
+        var user = optionalUser.get();
+        if (updateBalanceDto.operation() == BalanceOperation.MINUS) {
+            if (user.getBalance() - updateBalanceDto.amount() < 0.0) {
+                throw new IllegalBalanceException();
+            }
+        }
+        switch (updateBalanceDto.operation()) {
+            case PLUS -> user.setBalance(user.getBalance() + updateBalanceDto.amount());
+            case MINUS -> user.setBalance(user.getBalance() - updateBalanceDto.amount());
+        }
+        return UserFetchDto.of(userDao.save(user));
     }
 }

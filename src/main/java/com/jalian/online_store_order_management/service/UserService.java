@@ -1,10 +1,12 @@
 package com.jalian.online_store_order_management.service;
 
 import com.jalian.online_store_order_management.domain.User;
+import com.jalian.online_store_order_management.dto.UpdateBalanceDto;
 import com.jalian.online_store_order_management.dto.UserFetchDto;
 import com.jalian.online_store_order_management.dto.UserRegisterDto;
 import com.jalian.online_store_order_management.exception.DuplicateUsername;
 import com.jalian.online_store_order_management.exception.EntityNotFoundException;
+import com.jalian.online_store_order_management.exception.IllegalBalanceException;
 
 public interface UserService {
 
@@ -12,4 +14,5 @@ public interface UserService {
     UserFetchDto findUser(String username) throws EntityNotFoundException;
     UserFetchDto findUserById(Long id) throws EntityNotFoundException;
     User findUserEntityById(Long id) throws EntityNotFoundException;
+    UserFetchDto updateBalance(UpdateBalanceDto updateBalanceDto) throws IllegalBalanceException;
 }
