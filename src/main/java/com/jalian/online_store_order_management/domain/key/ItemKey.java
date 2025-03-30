@@ -50,7 +50,7 @@ public class ItemKey implements Serializable {
 
     @Override
     public String toString() {
-        final StringBuffer sb = new StringBuffer("OrderProductKey{");
+        final StringBuffer sb = new StringBuffer("ItemKey{");
         sb.append("orderId=").append(orderId);
         sb.append(", productId=").append(productId);
         sb.append('}');

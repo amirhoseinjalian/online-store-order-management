@@ -23,6 +23,7 @@ public class Item extends Auditable {
 
     private long count;
 
+    @Column(name = "present_inventory", nullable = false, updatable = false)
     private long presentInventory;
 
     public Item() {

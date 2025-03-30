@@ -4,5 +4,5 @@ import com.jalian.online_store_order_management.dto.AddOrderDto;
 
 public interface OrderService {
 
-    Long addOrder(AddOrderDto dto);
+    Long addOrder(AddOrderDto dto, PayService payService);
 }
