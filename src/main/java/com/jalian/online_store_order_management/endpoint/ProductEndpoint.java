@@ -36,11 +36,11 @@ public class ProductEndpoint {
         );
     }
 
-    @PutMapping("/operate")
+    @PutMapping("/discharge")
     public ResponseEntity<BaseResponse<ProductFetchDto>> doOperation(@RequestBody ProductOperationDto ProductOperationDto) {
         return new ResponseEntity<>(
                 new BaseResponse<>(
-                        productService.doOperation(ProductOperationDto),
+                        productService.dischargeProduct(ProductOperationDto),
                         "Operation done successfully"
                 ),
                 HttpStatus.OK

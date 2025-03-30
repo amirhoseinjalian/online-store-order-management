@@ -2,6 +2,7 @@ package com.jalian.online_store_order_management.service.impl;
 
 import com.jalian.online_store_order_management.annotation.NotNull;
 import com.jalian.online_store_order_management.annotation.Valid;
+import com.jalian.online_store_order_management.constant.ProductOperationStrategy;
 import com.jalian.online_store_order_management.dao.ProductDao;
 import com.jalian.online_store_order_management.domain.Product;
 import com.jalian.online_store_order_management.dto.ProductDto;
@@ -67,15 +68,25 @@ public class ProductServiceImpl implements ProductService {
         return findEntityById(productId);
     }
 
-    @Override
-    @Transactional(propagation = Propagation.MANDATORY)
-    @Valid
-    public ProductFetchDto doOperation(@NotNull ProductOperationDto dto) {
+    private ProductFetchDto doOperation(@NotNull ProductOperationDto dto, ProductOperationStrategy strategy) {
         var product = findEntityById(dto.productId());
-        var operator = ProductInventoryOperatorFactory.getInstance(dto.strategy());
+        var operator = ProductInventoryOperatorFactory.getInstance(strategy);
         product = operator.doOperation(product, dto.amount());
         product = productDao.save(product);
         return ProductFetchDto.of(product);
+    }
+
+    @Override
+    @Transactional(propagation = Propagation.MANDATORY)
+    @Valid
+    public ProductFetchDto dischargeProduct(@NotNull ProductOperationDto dto) {
+        return doOperation(dto, ProductOperationStrategy.MINUS);
+    }
+
+    @Override
+    @Transactional
+    public ProductFetchDto chargeProduct(ProductOperationDto dto) {
+        return doOperation(dto, ProductOperationStrategy.PLUS);
     }
 
     @Override

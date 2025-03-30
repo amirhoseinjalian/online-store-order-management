@@ -11,7 +11,9 @@ public interface ProductService {
 
     ProductFetchDto getProductById(Long productId);
 
-    ProductFetchDto doOperation(ProductOperationDto dto);
+    ProductFetchDto chargeProduct(ProductOperationDto dto);
+
+    ProductFetchDto dischargeProduct(ProductOperationDto dto);
 
     boolean belongsToStore(Long productId, Long storeId);
 

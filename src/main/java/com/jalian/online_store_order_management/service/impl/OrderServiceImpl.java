@@ -82,10 +82,9 @@ public class OrderServiceImpl implements OrderService {
                     itemDto.count(),
                     presentInventory
             );
-            productService.doOperation(
+            productService.dischargeProduct(
                     new ProductOperationDto(
                             itemDto.productId(),
-                            ProductOperationStrategy.MINUS,
                             itemDto.count()
                     )
             );
