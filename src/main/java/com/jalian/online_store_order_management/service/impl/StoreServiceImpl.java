@@ -27,35 +27,36 @@ public class StoreServiceImpl implements StoreService {
     @Transactional
     @Valid
     public Long addStore(@NotNull AddStoreDto storeDto) {
-        if (storeDao.existsByName(storeDto.name()))
+        if (storeDao.findByNameSafe(storeDto.name()).isPresent())
             throw new ConstraintViolationException("Store name already exists");
         var store = Store.of(storeDto);
         return storeDao.save(store).getId();
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     @Valid
     public boolean existStore(@NotNull Long storeId) {
-        return storeDao.existsById(storeId);
+        return storeDao.findByIdSafe(storeId).isPresent();
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     @Valid
     public Store findStore(@NotNull Long storeId) {
         return findStoreInternal(storeId);
     }
 
     private Store findStoreInternal(Long storeId) {
-        if (!storeDao.existsById(storeId)) {
+        var store = storeDao.findByIdSafe(storeId);
+        if (store.isEmpty()) {
             throw new EntityNotFoundException(Store.class.getSimpleName(), "id", storeId.toString());
         }
-        return storeDao.findByIdSafe(storeId);
+        return store.get();
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean belongToStore(Long storeId, Long userId) {
         var store = findStoreInternal(storeId);
         if (store.getUsers() == null || store.getUsers().isEmpty()) {

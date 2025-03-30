@@ -2,12 +2,10 @@ package com.jalian.online_store_order_management.exception.handler;
 
 import com.jalian.online_store_order_management.exception.*;
 import com.jalian.online_store_order_management.web.ErrorResponse;
-import jakarta.persistence.LockTimeoutException;
-import jakarta.persistence.PersistenceException;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.persistence.PessimisticLockException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.dao.PessimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -40,6 +38,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RecoveryException.class)
     public ResponseEntity<ErrorResponse> handleRecoveryException() {
         var errorResponse = new ErrorResponse("Transaction can not be done");
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler({PessimisticLockException.class, OptimisticLockException.class})
+    public ResponseEntity<ErrorResponse> handleLockException() {
+        var errorResponse = new ErrorResponse("Data is locked");
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

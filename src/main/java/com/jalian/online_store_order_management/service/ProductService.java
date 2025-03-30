@@ -16,6 +16,4 @@ public interface ProductService {
     boolean belongsToStore(Long productId, Long storeId);
 
     Product findProductById(Long productId);
-
-    boolean existsById(Long productId);
 }

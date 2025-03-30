@@ -7,15 +7,16 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface UserDao extends JpaRepository<User, Long> {
 
-    boolean existsByUsername(String username);
-    boolean existsById(Long id);
-    @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
+    @Lock(LockModeType.PESSIMISTIC_READ)
     @Query("select u from User u where u.id = :id")
-    User findByUsername(String username);
-    @Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
+    Optional<User> findByUsername(String username);
+
+    @Lock(LockModeType.PESSIMISTIC_READ)
     @Query("select u from User u where u.id = :id")
-    User findUserById(Long id);
+    Optional<User> findUserById(Long id);
 }

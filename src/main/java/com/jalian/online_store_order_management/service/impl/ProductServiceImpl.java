@@ -8,20 +8,12 @@ import com.jalian.online_store_order_management.dto.ProductDto;
 import com.jalian.online_store_order_management.dto.ProductFetchDto;
 import com.jalian.online_store_order_management.dto.ProductOperationDto;
 import com.jalian.online_store_order_management.exception.EntityNotFoundException;
-import com.jalian.online_store_order_management.exception.RecoveryException;
 import com.jalian.online_store_order_management.exception.ValidationException;
 import com.jalian.online_store_order_management.factory.ProductInventoryOperatorFactory;
 import com.jalian.online_store_order_management.service.ProductService;
 import com.jalian.online_store_order_management.service.StoreService;
-import jakarta.persistence.OptimisticLockException;
-import org.hibernate.StaleObjectStateException;
-import org.springframework.dao.PessimisticLockingFailureException;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Recover;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -55,61 +47,42 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    @Transactional(isolation = Isolation.REPEATABLE_READ)
+    @Transactional(readOnly = true)
     @Valid
     public ProductFetchDto getProductById(@NotNull Long productId) {
-        return ProductFetchDto.of(findEntityById(productId));
+        var product = findEntityById(productId);
+        return ProductFetchDto.of(product);
     }
 
     private Product findEntityById(Long productId) {
-        if (productDao.findById(productId).isEmpty()) {
+        var product = productDao.findByIdSafe(productId);
+        if (product.isEmpty()) {
             throw new EntityNotFoundException("Product with id " + productId + " does not exist");
         }
-        return productDao.findByIdSafe(productId);
+        return product.get();
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public Product findProductById(@NotNull Long productId) {
         return findEntityById(productId);
     }
 
     @Override
-    @Transactional
-    @Retryable(
-            retryFor = {
-                    OptimisticLockException.class,
-                    StaleObjectStateException.class,
-                    ObjectOptimisticLockingFailureException.class,
-                    PessimisticLockingFailureException.class,
-            },
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 1000),
-            recover = "recoverDoOperation"
-    )
+    @Transactional(propagation = Propagation.MANDATORY)
     @Valid
     public ProductFetchDto doOperation(@NotNull ProductOperationDto dto) {
-        var product = productDao.findByIdSafe(dto.productId());
+        var product = findEntityById(dto.productId());
         var operator = ProductInventoryOperatorFactory.getInstance(dto.strategy());
         product = operator.doOperation(product, dto.amount());
-        return ProductFetchDto.of(productDao.save(product));
+        product = productDao.save(product);
+        return ProductFetchDto.of(product);
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean belongsToStore(Long productId, Long storeId) {
-        var product = productDao.findByIdSafe(productId);
+        var product = findEntityById(productId);
         var store = storeService.findStore(storeId);
         return product.getStore().equals(store);
-    }
-
-    @Override
-    @Transactional
-    public boolean existsById(Long productId) {
-        return productDao.existsById(productId);
-    }
-
-    @Recover
-    public ProductFetchDto recoverDoOperation(Exception e, ProductOperationDto dto) {
-        throw new RecoveryException("Operation failed. Another operation might be performing");
     }
 }

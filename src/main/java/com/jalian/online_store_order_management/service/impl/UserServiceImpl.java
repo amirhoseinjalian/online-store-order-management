@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public long registerUser(UserRegisterDto userRegisterDto) throws DuplicateUsername {
-        if (userDao.existsByUsername(userRegisterDto.username()))
+        if (userDao.findByUsername(userRegisterDto.username()).isPresent())
             throw new DuplicateUsername(userRegisterDto.username());
         return userDao.save(User.of(userRegisterDto)).getId();
     }
@@ -32,10 +32,10 @@ public class UserServiceImpl implements UserService {
     @Transactional(readOnly = true)
     @Valid
     public UserFetchDto findUser(@Full String username) throws EntityNotFoundException {
-        if (!userDao.existsByUsername(username)) {
+        if (userDao.findByUsername(username).isEmpty()) {
             throw new EntityNotFoundException(User.class.getSimpleName(), "username", username);
         }
-        return UserFetchDto.of(userDao.findByUsername(username));
+        return UserFetchDto.of(userDao.findByUsername(username).get());
     }
 
     @Override
@@ -46,14 +46,14 @@ public class UserServiceImpl implements UserService {
     }
 
     private User findByIdInternal(Long id) {
-        if (!userDao.existsById(id)) {
+        if (userDao.findUserById(id).isEmpty()) {
             throw new EntityNotFoundException(User.class.getSimpleName(), "id", id.toString());
         }
-        return userDao.findUserById(id);
+        return userDao.findUserById(id).get();
     }
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public User findUserEntityById(Long id) throws EntityNotFoundException {
         return findByIdInternal(id);
     }

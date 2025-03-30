@@ -8,11 +8,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface ProductDao extends JpaRepository<Product, Long> {
 
-    //@Lock(LockModeType.PESSIMISTIC_FORCE_INCREMENT)
-    @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
+    @Lock(LockModeType.PESSIMISTIC_READ)
     @Query("select p from Product p where p.id = :id")
-    Product findByIdSafe(@Param("id") Long id);
+    Optional<Product> findByIdSafe(@Param("id") Long id);
 }
