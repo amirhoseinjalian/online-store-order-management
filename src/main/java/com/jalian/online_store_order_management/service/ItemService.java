@@ -9,4 +9,6 @@ import java.util.List;
 public interface ItemService {
 
     List<Item> saveItems(List<ItemDto> items, Order order);
+
+    List<Item> getProductsByOrderId(Long orderId);
 }

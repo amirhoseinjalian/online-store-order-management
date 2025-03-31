@@ -22,6 +22,7 @@ public class Item extends Auditable {
     private Order order;
 
     private long count;
+    private double price;
 
     @Column(name = "present_inventory", nullable = false, updatable = false)
     private long presentInventory;
@@ -29,12 +30,13 @@ public class Item extends Auditable {
     public Item() {
     }
 
-    public Item(ItemKey primaryKey, Product product, Order order, long count, long presentInventory) {
+    public Item(ItemKey primaryKey, Product product, Order order, long count, long presentInventory, double price) {
         this.id = primaryKey;
         this.product = product;
         this.order = order;
         this.count = count;
         this.presentInventory = presentInventory;
+        this.price = price;
     }
 
     public ItemKey getPrimaryKey() {
@@ -67,6 +69,14 @@ public class Item extends Auditable {
 
     public void setCount(long count) {
         this.count = count;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public long getPresentInventory() {

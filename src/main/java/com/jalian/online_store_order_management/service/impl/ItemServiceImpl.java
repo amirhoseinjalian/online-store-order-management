@@ -37,7 +37,8 @@ public class ItemServiceImpl implements ItemService {
                     product,
                     savedOrder,
                     itemDto.count(),
-                    product.getInventory()
+                    product.getInventory(),
+                    product.getPrice()
             );
             productService.dischargeProduct(
                     new ProductOperationDto(
@@ -48,5 +49,11 @@ public class ItemServiceImpl implements ItemService {
             savedItems.add(itemDao.save(item));
         });
         return savedItems;
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Item> getProductsByOrderId(Long orderId) {
+        return itemDao.findAllByOrder(orderId);
     }
 }

@@ -16,10 +16,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.util.List;
 import java.util.ArrayList;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
@@ -123,5 +121,22 @@ public class ItemServiceTest {
         assertThat(savedItem2.getProduct()).isEqualTo(product2);
         assertThat(savedItem2.getCount()).isEqualTo(7);
         assertThat(savedItem2.getPresentInventory()).isEqualTo(100);
+    }
+
+    @Test
+    void getProductsByOrderId_returnsItems() {
+        var item = new Item(new ItemKey(order.getId(), product.getId()), product, order, 5, product.getInventory(), product.getPrice());
+        when(itemDao.findAllByOrder(100L)).thenReturn(List.of(item));
+
+        var result = itemService.getProductsByOrderId(100L);
+        assertThat(result).hasSize(1);
+        assertThat(result.get(0).getOrder().getId()).isEqualTo(100L);
+    }
+
+    @Test
+    void getProductsByOrderId_empty_returnsEmptyList() {
+        when(itemDao.findAllByOrder(100L)).thenReturn(new ArrayList<>());
+        var result = itemService.getProductsByOrderId(100L);
+        assertThat(result).isEmpty();
     }
 }
