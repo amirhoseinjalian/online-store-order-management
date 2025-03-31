@@ -2,11 +2,11 @@ package com.jalian.online_store_order_management.unit.service;
 
 import com.jalian.online_store_order_management.constant.OrderStatus;
 import com.jalian.online_store_order_management.dao.OrderDao;
-import com.jalian.online_store_order_management.domain.Order;
-import com.jalian.online_store_order_management.domain.Store;
-import com.jalian.online_store_order_management.domain.User;
+import com.jalian.online_store_order_management.domain.*;
 import com.jalian.online_store_order_management.dto.AddOrderDto;
 import com.jalian.online_store_order_management.dto.ItemDto;
+import com.jalian.online_store_order_management.dto.OrderFetchDto;
+import com.jalian.online_store_order_management.exception.EntityNotFoundException;
 import com.jalian.online_store_order_management.exception.ValidationException;
 import com.jalian.online_store_order_management.service.ItemService;
 import com.jalian.online_store_order_management.service.PayService;
@@ -23,9 +23,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
-
 import java.util.List;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -112,5 +110,40 @@ public class OrderServiceTest {
                 () -> orderService.addOrder(addOrderDto, payService));
         assertThat(ex.getMessage()).contains("Product does not belong to store: 10");
         verify(productService).belongsToStore(eq(10L), eq(1L));
+    }
+
+    @Test
+    void findOrderById_success() {
+        var orderObj = new Order(OrderStatus.FINISHED, user, store);
+        orderObj.setId(100L);
+        var fakeProduct = new Product(store, 100.0, "Fake Product", "Fake Description");
+        fakeProduct.setId(20L);
+
+        var item = mock(Item.class);
+        when(item.getProduct()).thenReturn(fakeProduct);
+        when(item.getCount()).thenReturn(3L);
+        when(item.getPrice()).thenReturn(100.0);
+
+        var items = List.of(item);
+
+        when(orderDao.findById(100L)).thenReturn(java.util.Optional.of(orderObj));
+        when(itemService.getProductsByOrderId(100L)).thenReturn(items);
+
+        OrderFetchDto orderFetchDto = orderService.findOrderById(100L);
+
+        assertThat(orderFetchDto.orderId()).isEqualTo(100L);
+        assertThat(orderFetchDto.status()).isEqualTo(OrderStatus.FINISHED);
+        assertThat(orderFetchDto.items()).isNotEmpty();
+        var firstItem = orderFetchDto.items().get(0);
+        assertThat(firstItem.productId()).isEqualTo(20L);
+        assertThat(firstItem.count()).isEqualTo(3L);
+        assertThat(firstItem.price()).isEqualTo(100.0);
+    }
+
+    @Test
+    void findOrderById_notFound_throwsException() {
+        when(orderDao.findById(100L)).thenReturn(java.util.Optional.empty());
+        var ex = assertThrows(EntityNotFoundException.class, () -> orderService.findOrderById(100L));
+        assertThat(ex.getMessage()).contains("Order");
     }
 }
