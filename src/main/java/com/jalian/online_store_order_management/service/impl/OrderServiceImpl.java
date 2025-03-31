@@ -1,10 +1,12 @@
 package com.jalian.online_store_order_management.service.impl;
 
+import com.jalian.online_store_order_management.annotation.NotNull;
+import com.jalian.online_store_order_management.annotation.Valid;
 import com.jalian.online_store_order_management.constant.OrderStatus;
 import com.jalian.online_store_order_management.dao.OrderDao;
 import com.jalian.online_store_order_management.domain.Order;
-import com.jalian.online_store_order_management.dto.AddOrderDto;
-import com.jalian.online_store_order_management.dto.ItemDto;
+import com.jalian.online_store_order_management.dto.*;
+import com.jalian.online_store_order_management.exception.EntityNotFoundException;
 import com.jalian.online_store_order_management.exception.ValidationException;
 import com.jalian.online_store_order_management.service.*;
 import org.springframework.stereotype.Service;
@@ -43,6 +45,18 @@ public class OrderServiceImpl implements OrderService {
         savedOrder.setOrderStatus(OrderStatus.FINISHED);
         orderDao.save(savedOrder);
         return savedOrder.getId();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    @Valid
+    public OrderFetchDto findOrderById(@NotNull Long orderId) {
+        var order = orderDao.findById(orderId)
+                .orElseThrow(
+                        () -> new EntityNotFoundException(Order.class.getSimpleName(), "id", orderId.toString())
+                );
+        var items = itemService.getProductsByOrderId(orderId);
+        return OrderFetchDto.of(order, items);
     }
 
     private Order createNewOrder(Long userId, Long storeId) {
