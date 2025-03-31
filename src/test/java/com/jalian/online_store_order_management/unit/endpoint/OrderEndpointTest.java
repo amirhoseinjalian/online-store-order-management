@@ -12,16 +12,20 @@ import com.jalian.online_store_order_management.service.PayService;
 import com.jalian.online_store_order_management.service.impl.ASyncPayServiceImpl;
 import com.jalian.online_store_order_management.service.impl.SyncPayServiceImpl;
 import com.jalian.online_store_order_management.web.BaseResponse;
+import com.jalian.online_store_order_management.exception.handler.GlobalExceptionHandler;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import java.util.List;
+
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -30,21 +34,26 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 public class OrderEndpointTest {
 
     private MockMvc mockMvc;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @InjectMocks
     private OrderEndpoint orderEndpoint;
 
     @Mock
     private OrderService orderService;
+    @Mock
+    private SyncPayServiceImpl syncPayService;
+    @Mock
+    private ASyncPayServiceImpl asyncPayService;
 
     @BeforeEach
     void setUp() {
+        orderEndpoint = new OrderEndpoint(orderService, syncPayService, asyncPayService);
         mockMvc = MockMvcBuilders.standaloneSetup(orderEndpoint)
-                .setControllerAdvice(new com.jalian.online_store_order_management.exception.handler.GlobalExceptionHandler())
+                .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
 
@@ -56,7 +65,7 @@ public class OrderEndpointTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.result", is(100)))
+                .andExpect(jsonPath("$.result", equalTo(100)))
                 .andExpect(jsonPath("$.message", is("Order created successfully")))
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
