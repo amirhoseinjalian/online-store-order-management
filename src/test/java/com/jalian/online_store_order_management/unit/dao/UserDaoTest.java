@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -23,7 +24,7 @@ public class UserDaoTest extends BaseDomainRepositoryTest<User, UserDao> {
     @Override
     @BeforeEach
     public void initializeValue() {
-        instanceToTest = new User("testuser", "password");
+        instanceToTest = new User("test_user" + UUID.randomUUID(), "password");
     }
 
     @Test
