@@ -9,15 +9,25 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public abstract class BaseDomainRepositoryTest<Value extends BaseDomain,  Repository extends JpaRepository<Value, Long>> {
+public abstract class BaseDomainRepositoryTest<Value, Id, Repository extends JpaRepository<Value, Id>> {
 
     protected Repository repository;
     protected Value instanceToTest;
 
     public abstract void initializeValue();
+
     protected abstract Value updateValue();
+
     protected abstract void updateMethodValidation(Value updatedInstance);
+
     protected abstract List<Value> findAllEntities();
+
+    protected Id id() {
+        if (instanceToTest instanceof BaseDomain baseDomain) {
+            return (Id) baseDomain.getId();
+        }
+        return null;
+    }
 
     public BaseDomainRepositoryTest(Repository repository) {
         this.repository = repository;
@@ -27,13 +37,15 @@ public abstract class BaseDomainRepositoryTest<Value extends BaseDomain,  Reposi
     protected void save() {
         Value savedValue = repository.save(instanceToTest);
         assertThat(savedValue).isNotNull();
-        assertThat(savedValue.getId()).isGreaterThan(0);
+        if (savedValue instanceof BaseDomain baseDomain) {
+            assertThat(baseDomain.getId()).isGreaterThan(0);
+        }
     }
 
     @Test
     protected void findById() {
         repository.save(instanceToTest);
-        Optional<Value> founded = repository.findById(instanceToTest.getId());
+        Optional<Value> founded = repository.findById(id());
         assertThat(founded).isNotNull();
         assertThat(founded.isPresent()).isTrue();
     }
@@ -49,8 +61,8 @@ public abstract class BaseDomainRepositoryTest<Value extends BaseDomain,  Reposi
     @Test
     void delete() {
         repository.save(instanceToTest);
-        repository.deleteById(instanceToTest.getId());
-        Optional<Value> deleted = repository.findById(instanceToTest.getId());
+        repository.deleteById(id());
+        Optional<Value> deleted = repository.findById(id());
         assertThat(deleted).isEmpty();
     }
 

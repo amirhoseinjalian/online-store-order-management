@@ -10,14 +10,13 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class StoreDaoTest extends BaseDomainRepositoryTest<Store, StoreDao> {
+public class StoreDaoTest extends BaseDomainRepositoryTest<Store, Long, StoreDao> {
 
     public StoreDaoTest(@Autowired StoreDao repository) {
         super(repository);

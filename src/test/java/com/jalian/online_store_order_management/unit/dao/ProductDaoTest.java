@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class ProductDaoTest extends BaseDomainRepositoryTest<Product, ProductDao> {
+public class ProductDaoTest extends BaseDomainRepositoryTest<Product, Long, ProductDao> {
 
     private final Store store = new Store("store to test products");
 

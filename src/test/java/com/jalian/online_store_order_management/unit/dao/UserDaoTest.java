@@ -15,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class UserDaoTest extends BaseDomainRepositoryTest<User, UserDao> {
+public class UserDaoTest extends BaseDomainRepositoryTest<User, Long, UserDao> {
 
     public UserDaoTest(@Autowired UserDao repository) {
         super(repository);
