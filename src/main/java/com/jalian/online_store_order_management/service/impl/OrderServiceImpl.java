@@ -23,7 +23,14 @@ public class OrderServiceImpl implements OrderService {
     private final StoreService storeService;
     private final ItemService itemService;
 
-    public OrderServiceImpl(OrderDao orderDao, ProductService productService, UserService userService, StoreService storeService, ItemService itemService) {
+    public OrderServiceImpl(
+            OrderDao orderDao,
+            ProductService productService,
+            UserService userService,
+            StoreService storeService,
+            ItemService itemService,
+            SyncPayServiceImpl syncPayServiceImpl,
+            ASyncPayServiceImpl asyncPayServiceImpl) {
         this.orderDao = orderDao;
         this.productService = productService;
         this.userService = userService;
@@ -41,8 +48,7 @@ public class OrderServiceImpl implements OrderService {
         var savedOrder = orderDao.save(order);
         var itemsToPay = itemService.saveItems(dto.items(), savedOrder);
         var user = userService.findUserEntityById(dto.userId());
-        payService.pay(user, itemsToPay);
-        savedOrder.setOrderStatus(OrderStatus.FINISHED);
+        payService.pay(user, order, itemsToPay);
         orderDao.save(savedOrder);
         return savedOrder.getId();
     }

@@ -79,17 +79,16 @@ public class OrderServiceTest {
         when(userService.findUserEntityById(eq(1L))).thenReturn(user);
         when(storeService.findStore(eq(1L))).thenReturn(store);
         when(itemService.saveItems(anyList(), any(Order.class))).thenReturn(List.of());
-        doNothing().when(payService).pay(any(User.class), any());
+        doNothing().when(payService).pay(any(User.class), any(Order.class), any());
 
         var orderId = orderService.addOrder(addOrderDto, payService);
-
         assertThat(orderId).isEqualTo(100L);
         var orderCaptor = ArgumentCaptor.forClass(Order.class);
         verify(orderDao, atLeast(2)).save(orderCaptor.capture());
         var savedOrders = orderCaptor.getAllValues();
         var finalOrder = savedOrders.get(savedOrders.size() - 1);
-        assertThat(finalOrder.getOrderStatus()).isEqualTo(OrderStatus.FINISHED);
-        verify(payService).pay(eq(user), any());
+        assertThat(finalOrder.getOrderStatus()).isEqualTo(OrderStatus.INITIALIZED);
+        verify(payService).pay(eq(user), any(Order.class), any());
     }
 
     @Test

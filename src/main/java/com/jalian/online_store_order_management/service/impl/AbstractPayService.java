@@ -2,6 +2,7 @@ package com.jalian.online_store_order_management.service.impl;
 
 import com.jalian.online_store_order_management.constant.BalanceOperation;
 import com.jalian.online_store_order_management.domain.Item;
+import com.jalian.online_store_order_management.domain.Order;
 import com.jalian.online_store_order_management.domain.User;
 import com.jalian.online_store_order_management.dto.UpdateBalanceDto;
 import com.jalian.online_store_order_management.service.PayService;
@@ -19,7 +20,7 @@ public sealed abstract class AbstractPayService implements PayService
     }
 
     @Override
-    public void pay(User user, List<Item> items) {
+    public void pay(User user, Order order, List<Item> items) {
         var finalPrice = calculatePrice(items);
         userService.updateBalance(new UpdateBalanceDto(user.getId(), finalPrice, BalanceOperation.MINUS));
     }
