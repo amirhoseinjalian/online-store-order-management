@@ -24,6 +24,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+/**
+ * The AsyncPayServiceIntegrationTest class verifies the asynchronous behavior of the ASyncPayServiceImpl.
+ * <p>
+ * It uses a combination of Spring Boot's testing support and Awaitility to ensure that the payment operation
+ * executes in a separate thread from the test's main thread.
+ * </p>
+ *
+ * This integration test mocks the dependencies of ASyncPayServiceImpl to isolate and validate its asynchronous execution.
+ *
+ * @author amirhosein jalian
+ */
 @SpringBootTest
 public class AsyncPayServiceIntegrationTest {
 
@@ -64,13 +75,23 @@ public class AsyncPayServiceIntegrationTest {
         item2.setProduct(product2);
     }
 
+    /**
+     * Tests that the asynchronous payment execution occurs in a separate thread.
+     * <p>
+     * The test verifies that the call to pay() is executed asynchronously by comparing the thread
+     * name of the payment execution against the main test thread. Awaitility is used to wait until the
+     * asynchronous execution completes.
+     * </p>
+     */
     @Test
     void testAsyncExecution() {
         AtomicReference<String> asyncThreadName = new AtomicReference<>();
+
         when(userService.updateBalance(any(UpdateBalanceDto.class))).thenAnswer(invocation -> {
             asyncThreadName.set(Thread.currentThread().getName());
             return null;
         });
+
         when(orderDao.save(any(Order.class))).thenAnswer(invocation -> {
             Order o = invocation.getArgument(0);
             if (o.getId() == null) {
@@ -78,10 +99,13 @@ public class AsyncPayServiceIntegrationTest {
             }
             return o;
         });
+
         Order order = new Order();
         order.setOrderStatus(OrderStatus.INITIALIZED);
+
         String testThreadName = Thread.currentThread().getName();
         asyncPayService.pay(user, order, List.of(item1, item2));
+
         await().atMost(Duration.ofSeconds(5)).until(() -> asyncThreadName.get() != null);
         assertThat(asyncThreadName.get()).isNotEqualTo(testThreadName);
     }

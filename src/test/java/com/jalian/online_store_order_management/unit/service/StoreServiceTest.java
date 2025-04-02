@@ -23,6 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for the {@link StoreServiceImpl} class.
+ * This class contains test cases that verify the behavior of the store-related services.
+ * Tests cover adding a store, checking store existence, retrieving store data, and verifying store ownership.
+ */
 @ExtendWith(MockitoExtension.class)
 public class StoreServiceTest {
 
@@ -38,6 +43,10 @@ public class StoreServiceTest {
     private AddStoreDto addStoreDto;
     private Store store;
 
+    /**
+     * Sets up the initial state for the tests.
+     * Initializes a store and an AddStoreDto object for use in the test cases.
+     */
     @BeforeEach
     void setUp() {
         addStoreDto = new AddStoreDto("Test Store");
@@ -46,6 +55,10 @@ public class StoreServiceTest {
         store.setId(1L);
     }
 
+    /**
+     * Test case for successfully adding a store.
+     * Verifies that the store is added when the store name is unique.
+     */
     @Test
     void addStore_success() {
         when(storeDao.findByNameSafe("Test Store")).thenReturn(Optional.empty());
@@ -60,6 +73,10 @@ public class StoreServiceTest {
         verify(storeDao).save(any(Store.class));
     }
 
+    /**
+     * Test case for adding a store with a duplicate name.
+     * Verifies that a {@link ConstraintViolationException} is thrown when the store name already exists.
+     */
     @Test
     void addStore_duplicateName_throwsException() {
         when(storeDao.findByNameSafe("Test Store")).thenReturn(Optional.of(store));
@@ -69,6 +86,10 @@ public class StoreServiceTest {
         verify(storeDao, never()).save(any());
     }
 
+    /**
+     * Test case for checking if a store exists by its ID.
+     * Verifies that the method returns true when the store is found.
+     */
     @Test
     void existStore_returnsTrue() {
         when(storeDao.findByIdSafe(1L)).thenReturn(Optional.of(store));
@@ -77,6 +98,10 @@ public class StoreServiceTest {
         verify(storeDao).findByIdSafe(1L);
     }
 
+    /**
+     * Test case for checking if a store exists by its ID.
+     * Verifies that the method returns false when the store is not found.
+     */
     @Test
     void existStore_returnsFalse() {
         when(storeDao.findByIdSafe(2L)).thenReturn(Optional.empty());
@@ -85,6 +110,10 @@ public class StoreServiceTest {
         verify(storeDao).findByIdSafe(2L);
     }
 
+    /**
+     * Test case for retrieving a store by its ID.
+     * Verifies that the correct store is returned when the store is found.
+     */
     @Test
     void findStore_success() {
         when(storeDao.findByIdSafe(1L)).thenReturn(Optional.of(store));
@@ -93,6 +122,10 @@ public class StoreServiceTest {
         verify(storeDao).findByIdSafe(1L);
     }
 
+    /**
+     * Test case for retrieving a store by its ID when the store is not found.
+     * Verifies that an {@link EntityNotFoundException} is thrown when the store is not found.
+     */
     @Test
     void findStore_notFound_throwsException() {
         when(storeDao.findByIdSafe(2L)).thenReturn(Optional.empty());
@@ -101,6 +134,10 @@ public class StoreServiceTest {
         verify(storeDao).findByIdSafe(2L);
     }
 
+    /**
+     * Test case for checking if a user belongs to a store when the store has no users.
+     * Verifies that the method returns false when there are no users in the store.
+     */
     @Test
     void belongToStore_emptyUsers_returnsFalse() {
         when(storeDao.findByIdSafe(1L)).thenReturn(Optional.of(store));
@@ -110,6 +147,10 @@ public class StoreServiceTest {
         verify(userService, never()).findUserEntityById(any());
     }
 
+    /**
+     * Test case for checking if a user belongs to a store when the user is not in the store.
+     * Verifies that the method returns false when the user is not found in the store's list of users.
+     */
     @Test
     void belongToStore_userNotInStore_returnsFalse() {
         store.getUsers().add(new User("other", "pass", "Other", "other@example.com", "User"));
@@ -122,6 +163,10 @@ public class StoreServiceTest {
         verify(userService).findUserEntityById(1L);
     }
 
+    /**
+     * Test case for checking if a user belongs to a store when the user is in the store.
+     * Verifies that the method returns true when the user is in the store's list of users.
+     */
     @Test
     void belongToStore_userInStore_returnsTrue() {
         var userInStore = new User("john", "pass", "John", "john@example.com", "Doe");

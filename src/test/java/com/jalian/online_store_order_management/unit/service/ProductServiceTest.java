@@ -1,5 +1,7 @@
 package com.jalian.online_store_order_management.unit.service;
 
+import com.jalian.online_store_order_management.constant.BalanceOperation;
+import com.jalian.online_store_order_management.constant.OrderStatus;
 import com.jalian.online_store_order_management.dao.ProductDao;
 import com.jalian.online_store_order_management.domain.Product;
 import com.jalian.online_store_order_management.domain.Store;
@@ -24,6 +26,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
+/**
+ * Unit test class for testing the {@link ProductServiceImpl} class.
+ * This class contains various test cases to verify the functionality of product-related services.
+ * Tests cover adding, retrieving, charging, and discharging products, as well as validating business rules.
+ */
 @ExtendWith(MockitoExtension.class)
 public class ProductServiceTest {
 
@@ -40,6 +47,10 @@ public class ProductServiceTest {
     private Store store;
     private Product product;
 
+    /**
+     * Set up the initial state before each test.
+     * Initializes a store, product, and product DTO for use in the test cases.
+     */
     @BeforeEach
     void setUp() {
         store = new Store("Test Store");
@@ -49,6 +60,10 @@ public class ProductServiceTest {
         product.setId(1L);
     }
 
+    /**
+     * Test case for adding a product successfully.
+     * Verifies that the product is saved to the database and the correct interactions with dependencies occur.
+     */
     @Test
     void addProduct_success() {
         when(storeService.existStore(1L)).thenReturn(true);
@@ -65,6 +80,10 @@ public class ProductServiceTest {
         verify(productDao).save(any(Product.class));
     }
 
+    /**
+     * Test case for adding a product when the store does not exist.
+     * Verifies that a {@link ValidationException} is thrown when trying to add a product to a non-existent store.
+     */
     @Test
     void addProduct_storeNotExist_throwsException() {
         when(storeService.existStore(1L)).thenReturn(false);
@@ -73,6 +92,10 @@ public class ProductServiceTest {
         verify(storeService).existStore(1L);
     }
 
+    /**
+     * Test case for adding a product with an empty name.
+     * Verifies that a {@link ValidationException} is thrown when the product name is empty.
+     */
     @Test
     void addProduct_emptyName_throwsException() {
         var dto = new ProductDto("", "Desc", 50.0, 1L);
@@ -81,6 +104,10 @@ public class ProductServiceTest {
         assertThat(ex.getMessage()).contains("Product name cannot be empty");
     }
 
+    /**
+     * Test case for adding a product with a negative price.
+     * Verifies that a {@link ValidationException} is thrown when the product price is negative.
+     */
     @Test
     void addProduct_negativePrice_throwsException() {
         var dto = new ProductDto("Product B", "Desc", -10.0, 1L);
@@ -89,6 +116,10 @@ public class ProductServiceTest {
         assertThat(ex.getMessage()).contains("Product price cannot be a negative number");
     }
 
+    /**
+     * Test case for retrieving a product by its ID successfully.
+     * Verifies that the correct product is returned and the correct interactions with the DAO occur.
+     */
     @Test
     void getProductById_success() {
         when(productDao.findByIdSafe(1L)).thenReturn(Optional.of(product));
@@ -99,6 +130,10 @@ public class ProductServiceTest {
         verify(productDao).findByIdSafe(1L);
     }
 
+    /**
+     * Test case for retrieving a product by its ID when the product is not found.
+     * Verifies that an {@link EntityNotFoundException} is thrown when the product does not exist in the database.
+     */
     @Test
     void getProductById_notFound_throwsException() {
         when(productDao.findByIdSafe(2L)).thenReturn(Optional.empty());
@@ -107,6 +142,10 @@ public class ProductServiceTest {
         verify(productDao).findByIdSafe(2L);
     }
 
+    /**
+     * Test case for discharging a product (decreasing its inventory).
+     * Verifies that the inventory is updated correctly and the correct interactions with the DAO occur.
+     */
     @Test
     void dischargeProduct_success() {
         product.setInventory(10);
@@ -119,6 +158,10 @@ public class ProductServiceTest {
         verify(productDao).save(any(Product.class));
     }
 
+    /**
+     * Test case for charging a product (increasing its inventory).
+     * Verifies that the inventory is updated correctly and the correct interactions with the DAO occur.
+     */
     @Test
     void chargeProduct_success() {
         product.setInventory(10);
@@ -131,6 +174,10 @@ public class ProductServiceTest {
         verify(productDao).save(any(Product.class));
     }
 
+    /**
+     * Test case for verifying if a product belongs to a store when it does.
+     * Verifies that the `belongsToStore` method returns `true` when the product is associated with the given store.
+     */
     @Test
     void belongsToStore_true() {
         when(productDao.findByIdSafe(1L)).thenReturn(Optional.of(product));
@@ -141,6 +188,10 @@ public class ProductServiceTest {
         verify(storeService).findStore(1L);
     }
 
+    /**
+     * Test case for verifying if a product belongs to a store when it does not.
+     * Verifies that the `belongsToStore` method returns `false` when the product is not associated with the given store.
+     */
     @Test
     void belongsToStore_false() {
         var otherStore = new Store("Other Store");

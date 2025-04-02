@@ -23,6 +23,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for the {@link ItemServiceImpl} class.
+ * <p>
+ * This class tests the methods related to saving and retrieving items,
+ * ensuring proper interaction with the product and item DAO layers.
+ * </p>
+ *
+ * @author amirhosein jalian
+ */
 @ExtendWith(MockitoExtension.class)
 public class ItemServiceTest {
 
@@ -40,6 +49,9 @@ public class ItemServiceTest {
     private Product product;
     private ItemDto itemDto;
 
+    /**
+     * Sets up necessary test data before each test.
+     */
     @BeforeEach
     void setUp() {
         order = new Order();
@@ -52,6 +64,9 @@ public class ItemServiceTest {
         itemDto = new ItemDto(10L, 5);
     }
 
+    /**
+     * Tests the successful saving of an item.
+     */
     @Test
     void saveItems_success() {
         when(productService.findProductById(10L)).thenReturn(product);
@@ -76,6 +91,9 @@ public class ItemServiceTest {
         assertThat(savedItem.getPresentInventory()).isEqualTo(50);
     }
 
+    /**
+     * Tests that an empty list of items returns an empty list.
+     */
     @Test
     void saveItems_emptyList_returnsEmptyList() {
         List<Item> savedItems = itemService.saveItems(new ArrayList<>(), order);
@@ -85,6 +103,9 @@ public class ItemServiceTest {
         verify(itemDao, never()).save(any());
     }
 
+    /**
+     * Tests the saving of multiple items.
+     */
     @Test
     void saveItems_multipleItems_success() {
         var product1 = product;
@@ -123,6 +144,9 @@ public class ItemServiceTest {
         assertThat(savedItem2.getPresentInventory()).isEqualTo(100);
     }
 
+    /**
+     * Tests retrieving products by order id.
+     */
     @Test
     void getProductsByOrderId_returnsItems() {
         var item = new Item(new ItemKey(order.getId(), product.getId()), product, order, 5, product.getInventory(), product.getPrice());
@@ -133,6 +157,9 @@ public class ItemServiceTest {
         assertThat(result.get(0).getOrder().getId()).isEqualTo(100L);
     }
 
+    /**
+     * Tests that retrieving products by order id returns an empty list when no items are found.
+     */
     @Test
     void getProductsByOrderId_empty_returnsEmptyList() {
         when(itemDao.findAllByOrder(100L)).thenReturn(new ArrayList<>());

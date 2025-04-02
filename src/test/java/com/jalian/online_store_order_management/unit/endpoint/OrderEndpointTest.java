@@ -24,6 +24,7 @@ import org.mockito.quality.Strictness;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
@@ -33,6 +34,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Unit tests for the {@link OrderEndpoint} class.
+ * <p>
+ * This class tests various endpoint scenarios such as adding orders synchronously and asynchronously,
+ * fetching orders by ID, and handling validation and exception cases.
+ * </p>
+ *
+ * @author amirhosein jalian
+ */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class OrderEndpointTest {
@@ -40,6 +50,7 @@ public class OrderEndpointTest {
     private MockMvc mockMvc;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
+    @InjectMocks
     private OrderEndpoint orderEndpoint;
 
     @Mock
@@ -49,18 +60,24 @@ public class OrderEndpointTest {
     @Mock
     private ASyncPayServiceImpl asyncPayService;
 
+    /**
+     * Initializes the mock MVC and sets up the OrderEndpoint before each test.
+     */
     @BeforeEach
     void setUp() {
-        orderEndpoint = new OrderEndpoint(orderService, syncPayService, asyncPayService);
         mockMvc = MockMvcBuilders.standaloneSetup(orderEndpoint)
                 .setControllerAdvice(new GlobalExceptionHandler())
                 .build();
     }
 
+    /**
+     * Tests adding an order synchronously and checking the response.
+     */
     @Test
     void addOrderSync_success() throws Exception {
         var dto = new AddOrderDto(1L, 1L, List.of());
         when(orderService.addOrder(any(AddOrderDto.class), any(PayService.class))).thenReturn(100L);
+
         mockMvc.perform(post("/orders/add/sync")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -70,10 +87,14 @@ public class OrderEndpointTest {
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
+    /**
+     * Tests adding an order asynchronously and checking the response.
+     */
     @Test
     void addOrderAsync_success() throws Exception {
         var dto = new AddOrderDto(1L, 1L, List.of());
         when(orderService.addOrder(any(AddOrderDto.class), any(PayService.class))).thenReturn(200L);
+
         mockMvc.perform(post("/orders/add/async")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -83,10 +104,14 @@ public class OrderEndpointTest {
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
+    /**
+     * Tests fetching an order by ID and checking the response.
+     */
     @Test
     void findOrderById_success() throws Exception {
         var orderFetchDto = new OrderFetchDto(100L, null, null, OrderStatus.FINISHED, List.of());
         when(orderService.findOrderById(100L)).thenReturn(orderFetchDto);
+
         mockMvc.perform(get("/orders/find/100"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.orderId", is(100)))
@@ -95,10 +120,14 @@ public class OrderEndpointTest {
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
+    /**
+     * Tests the scenario where an order is not found by ID and the appropriate exception is thrown.
+     */
     @Test
     void findOrderById_notFound_exception() throws Exception {
         when(orderService.findOrderById(100L))
                 .thenThrow(new EntityNotFoundException("Order", "id", "100"));
+
         mockMvc.perform(get("/orders/find/100"))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.result", is(-1)))
@@ -106,11 +135,15 @@ public class OrderEndpointTest {
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
+    /**
+     * Tests adding an order synchronously and handling validation exception.
+     */
     @Test
     void addOrderSync_validationException() throws Exception {
         var dto = new AddOrderDto(1L, 1L, List.of());
         when(orderService.addOrder(any(AddOrderDto.class), any(PayService.class)))
                 .thenThrow(new ValidationException("Validation failed"));
+
         mockMvc.perform(post("/orders/add/sync")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))

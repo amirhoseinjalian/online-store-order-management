@@ -23,6 +23,11 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for the {@link UserServiceImpl} class.
+ * This class contains test cases that verify the behavior of the user-related services,
+ * including user registration, fetching user data, and updating user balances.
+ */
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
 
@@ -35,6 +40,10 @@ public class UserServiceTest {
     private UserRegisterDto userRegisterDto;
     private User user;
 
+    /**
+     * Sets up the initial state for the tests.
+     * Initializes a User object and a UserRegisterDto object for use in the test cases.
+     */
     @BeforeEach
     void setUp() {
         userRegisterDto = new UserRegisterDto("John", "Doe", "john@example.com", "password", "john");
@@ -42,6 +51,10 @@ public class UserServiceTest {
         user.setId(1L);
     }
 
+    /**
+     * Test case for successfully registering a user.
+     * Verifies that the user is registered when the username is unique.
+     */
     @Test
     void registerUser_success() throws DuplicateUsername {
         when(userDao.findByUsername("john")).thenReturn(Optional.empty());
@@ -52,6 +65,10 @@ public class UserServiceTest {
         verify(userDao).save(any(User.class));
     }
 
+    /**
+     * Test case for user registration when the username is already taken.
+     * Verifies that a {@link DuplicateUsername} exception is thrown when the username already exists.
+     */
     @Test
     void registerUser_duplicateUsername() {
         when(userDao.findByUsername("john")).thenReturn(Optional.of(user));
@@ -61,6 +78,10 @@ public class UserServiceTest {
         verify(userDao, never()).save(any());
     }
 
+    /**
+     * Test case for finding a user by username.
+     * Verifies that the correct user is returned when the username is found.
+     */
     @Test
     void findUser_success() throws EntityNotFoundException {
         when(userDao.findByUsername("john")).thenReturn(Optional.of(user));
@@ -69,6 +90,10 @@ public class UserServiceTest {
         verify(userDao, times(2)).findByUsername("john");
     }
 
+    /**
+     * Test case for finding a user by username when the user does not exist.
+     * Verifies that an {@link EntityNotFoundException} is thrown when the user is not found.
+     */
     @Test
     void findUser_notFound() {
         when(userDao.findByUsername("john")).thenReturn(Optional.empty());
@@ -77,6 +102,10 @@ public class UserServiceTest {
         verify(userDao).findByUsername("john");
     }
 
+    /**
+     * Test case for finding a user by ID.
+     * Verifies that the correct user is returned when the user exists.
+     */
     @Test
     void findUserById_success() throws EntityNotFoundException {
         when(userDao.findUserById(1L)).thenReturn(Optional.of(user));
@@ -85,6 +114,10 @@ public class UserServiceTest {
         verify(userDao).findUserById(1L);
     }
 
+    /**
+     * Test case for finding a user by ID when the user does not exist.
+     * Verifies that an {@link EntityNotFoundException} is thrown when the user is not found.
+     */
     @Test
     void findUserById_notFound() {
         when(userDao.findUserById(2L)).thenReturn(Optional.empty());
@@ -93,6 +126,10 @@ public class UserServiceTest {
         verify(userDao).findUserById(2L);
     }
 
+    /**
+     * Test case for updating a user's balance with a positive amount.
+     * Verifies that the user's balance is updated correctly.
+     */
     @Test
     void updateBalance_plus_success() {
         user.setBalance(100.0);
@@ -105,6 +142,10 @@ public class UserServiceTest {
         verify(userDao).save(any(User.class));
     }
 
+    /**
+     * Test case for updating a user's balance with a negative amount.
+     * Verifies that the user's balance is updated correctly.
+     */
     @Test
     void updateBalance_minus_success() {
         user.setBalance(100.0);
@@ -117,6 +158,10 @@ public class UserServiceTest {
         verify(userDao).save(any(User.class));
     }
 
+    /**
+     * Test case for updating a user's balance with insufficient funds.
+     * Verifies that an {@link IllegalBalanceException} is thrown when the balance is insufficient for withdrawal.
+     */
     @Test
     void updateBalance_minus_insufficientFunds() {
         user.setBalance(30.0);
@@ -128,6 +173,10 @@ public class UserServiceTest {
         verify(userDao, never()).save(any(User.class));
     }
 
+    /**
+     * Test case for updating a user's balance when the user is not found.
+     * Verifies that an {@link EntityNotFoundException} is thrown when the user is not found.
+     */
     @Test
     void updateBalance_userNotFound() {
         var updateBalanceDto = new UpdateBalanceDto(2L, 50.0, BalanceOperation.PLUS);

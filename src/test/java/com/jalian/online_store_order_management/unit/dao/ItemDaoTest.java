@@ -24,6 +24,15 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+/**
+ * The ItemDaoTest class contains unit tests for the {@link ItemDao} repository.
+ * <p>
+ * These tests validate the basic CRUD operations (save, find, update, delete, and findAll)
+ * as well as custom query methods such as {@code findAllByOrder}.
+ * </p>
+ *
+ * @author amirhosein jalian
+ */
 @DataJpaTest
 @TestInstance(TestInstance.Lifecycle.PER_METHOD)
 public class ItemDaoTest {

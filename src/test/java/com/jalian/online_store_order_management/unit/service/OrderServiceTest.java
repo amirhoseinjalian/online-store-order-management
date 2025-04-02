@@ -23,7 +23,9 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.mockito.quality.Strictness;
+
 import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -31,6 +33,15 @@ import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for the {@link OrderServiceImpl} class.
+ * <p>
+ * This class tests the methods related to order creation and retrieval, ensuring
+ * proper interaction with the product, user, store, item, and pay services.
+ * </p>
+ *
+ * @author amirhosein jalian
+ */
 @ExtendWith(MockitoExtension.class)
 @MockitoSettings(strictness = Strictness.LENIENT)
 public class OrderServiceTest {
@@ -55,6 +66,9 @@ public class OrderServiceTest {
     private Store store;
     private ItemDto itemDto;
 
+    /**
+     * Sets up necessary test data before each test.
+     */
     @BeforeEach
     void setUp() {
         user = new User();
@@ -72,6 +86,9 @@ public class OrderServiceTest {
         });
     }
 
+    /**
+     * Tests the successful creation of an order.
+     */
     @Test
     void addOrder_success() {
         when(storeService.belongToStore(eq(1L), eq(1L))).thenReturn(true);
@@ -91,6 +108,9 @@ public class OrderServiceTest {
         verify(payService).pay(eq(user), any(Order.class), any());
     }
 
+    /**
+     * Tests the scenario where the user does not belong to the store.
+     */
     @Test
     void addOrder_userNotBelong_throwsException() {
         when(storeService.belongToStore(eq(1L), eq(1L))).thenReturn(false);
@@ -101,6 +121,9 @@ public class OrderServiceTest {
         verifyNoInteractions(productService, userService, itemService, payService);
     }
 
+    /**
+     * Tests the scenario where the product does not belong to the store.
+     */
     @Test
     void addOrder_productNotBelong_throwsException() {
         when(storeService.belongToStore(eq(1L), eq(1L))).thenReturn(true);
@@ -111,6 +134,9 @@ public class OrderServiceTest {
         verify(productService).belongsToStore(eq(10L), eq(1L));
     }
 
+    /**
+     * Tests the successful retrieval of an order by its ID.
+     */
     @Test
     void findOrderById_success() {
         var orderObj = new Order(OrderStatus.FINISHED, user, store);
@@ -139,6 +165,9 @@ public class OrderServiceTest {
         assertThat(firstItem.price()).isEqualTo(100.0);
     }
 
+    /**
+     * Tests the scenario where an order is not found by its ID.
+     */
     @Test
     void findOrderById_notFound_throwsException() {
         when(orderDao.findById(100L)).thenReturn(java.util.Optional.empty());

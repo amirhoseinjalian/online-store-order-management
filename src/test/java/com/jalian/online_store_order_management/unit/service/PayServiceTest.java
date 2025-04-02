@@ -18,16 +18,29 @@ import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import java.time.Duration;
 import java.util.List;
-
 import static org.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
+/**
+ * Unit tests for payment services (synchronous and asynchronous) to validate their behavior,
+ * including retry mechanisms.
+ * <p>
+ * The tests verify that:
+ * <ul>
+ *   <li>The sync pay service correctly invokes the updateBalance operation.</li>
+ *   <li>The async pay service calls the updateBalance operation in an asynchronous context.</li>
+ *   <li>The async pay service retries on temporary failures and eventually sets the order status to FINISHED.</li>
+ *   <li>The async pay service sets the order status to FAILED after repeated failures.</li>
+ * </ul>
+ * </p>
+ *
+ * @author amirhosein jalian
+ */
 @ExtendWith(MockitoExtension.class)
 public class PayServiceTest {
 
@@ -150,6 +163,9 @@ public class PayServiceTest {
         );
     }
 
+    /**
+     * Custom ArgumentMatcher to validate UpdateBalanceDto parameters.
+     */
     private static class UpdateBalanceMatcher implements ArgumentMatcher<UpdateBalanceDto> {
         private final Long expectedUserId;
         private final double expectedAmount;

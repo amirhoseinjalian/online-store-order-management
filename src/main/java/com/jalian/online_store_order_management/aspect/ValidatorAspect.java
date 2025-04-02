@@ -10,11 +10,37 @@ import org.springframework.stereotype.Component;
 
 import java.lang.annotation.Annotation;
 
+/**
+ * The ValidatorAspect class intercepts methods annotated with {@code @Valid} and performs parameter validations.
+ * <p>
+ * It examines the method parameters and their annotations to ensure they adhere to the constraints defined by
+ * custom annotations such as {@code @Full}, {@code @NotNull}, {@code @NotEmpty}, {@code @NotBlank}, and {@code @Pattern}.
+ * If a validation fails, a {@link ValidationException} is thrown with an appropriate message.
+ * </p>
+ *
+ * <p><b>Note:</b> Cleaner code refactoring is needed.</p>
+ *
+ * @author amirhosein jalian
+ */
 @Aspect
 @Component
-//todo: cleaner code is needed
 public class ValidatorAspect {
 
+    /**
+     * Intercepts the execution of any method annotated with {@code @Valid} to validate its parameters.
+     * <p>
+     * For each method parameter, it retrieves the associated annotations and performs validations based on:
+     * <ul>
+     *     <li>{@code @Full}: Ensures the argument is not null, empty, or blank.</li>
+     *     <li>{@code @NotNull}: Ensures the argument is not null.</li>
+     *     <li>{@code @NotEmpty}: Ensures the argument is not empty.</li>
+     *     <li>{@code @NotBlank}: Ensures the argument is not blank.</li>
+     *     <li>{@code @Pattern}: Ensures the argument matches a given regular expression.</li>
+     * </ul>
+     * </p>
+     *
+     * @param joinPoint the join point representing the method execution.
+     */
     @Before("@annotation(com.jalian.online_store_order_management.annotation.Valid)")
     public void validateMethodParameters(JoinPoint joinPoint) {
         Object[] args = joinPoint.getArgs();
@@ -39,6 +65,17 @@ public class ValidatorAspect {
         }
     }
 
+    /**
+     * Validates the parameter annotated with {@code @Full}.
+     * <p>
+     * This method checks that the argument is not {@code null}, not empty, and not a single blank space.
+     * If any of these conditions fail, a {@link ValidationException} is thrown with a message indicating the problem.
+     * </p>
+     *
+     * @param annotation the annotation instance (expected to be {@code @Full}).
+     * @param arg the method argument to validate.
+     * @param param the name of the parameter.
+     */
     private void handleFull(Annotation annotation, Object arg, String param) {
         if (annotation instanceof Full) {
             if (arg == null) {
@@ -53,6 +90,17 @@ public class ValidatorAspect {
         }
     }
 
+    /**
+     * Validates the parameter annotated with {@code @NotNull}.
+     * <p>
+     * Checks if the argument is {@code null}. If it is, throws a {@link ValidationException} with either the default
+     * message or the message provided in the annotation.
+     * </p>
+     *
+     * @param notNull the {@code @NotNull} annotation instance.
+     * @param arg the method argument to validate.
+     * @param param the name of the parameter.
+     */
     private void handleNotNull(NotNull notNull, Object arg, String param) {
         if (arg == null) {
             if (notNull.message().isEmpty()) {
@@ -63,6 +111,17 @@ public class ValidatorAspect {
         }
     }
 
+    /**
+     * Validates the parameter annotated with {@code @NotEmpty}.
+     * <p>
+     * Checks if the argument is empty. If it is, throws a {@link ValidationException} with either the default
+     * message or the message provided in the annotation.
+     * </p>
+     *
+     * @param notEmpty the {@code @NotEmpty} annotation instance.
+     * @param arg the method argument to validate.
+     * @param param the name of the parameter.
+     */
     private void handleNotEmpty(NotEmpty notEmpty, Object arg, String param) {
         if ("".equals(String.valueOf(arg))) {
             if (notEmpty.message().isEmpty()) {
@@ -73,16 +132,39 @@ public class ValidatorAspect {
         }
     }
 
-    private void handleNotBlank(NotBlank notEmpty, Object arg, String param) {
+    /**
+     * Validates the parameter annotated with {@code @NotBlank}.
+     * <p>
+     * Checks if the argument is a single blank space. If it is, throws a {@link ValidationException} with either the default
+     * message or the message provided in the annotation.
+     * </p>
+     *
+     * @param notBlank the {@code @NotBlank} annotation instance.
+     * @param arg the method argument to validate.
+     * @param param the name of the parameter.
+     */
+    private void handleNotBlank(NotBlank notBlank, Object arg, String param) {
         if (" ".equals(String.valueOf(arg))) {
-            if (notEmpty.message().isEmpty()) {
+            if (notBlank.message().isEmpty()) {
                 throw new ValidationException(param + " cannot be blank");
             } else {
-                throw new ValidationException(notEmpty.message());
+                throw new ValidationException(notBlank.message());
             }
         }
     }
 
+    /**
+     * Validates the parameter annotated with {@code @Pattern}.
+     * <p>
+     * Checks if the argument is not {@code null} and matches the regular expression specified by the annotation.
+     * If the argument is {@code null} or does not match the pattern, a {@link ValidationException} is thrown with
+     * an appropriate message.
+     * </p>
+     *
+     * @param pattern the {@code @Pattern} annotation instance.
+     * @param arg the method argument to validate.
+     * @param param the name of the parameter.
+     */
     private void handlePattern(Pattern pattern, Object arg, String param) {
         if (arg != null && !String.valueOf(arg).matches(pattern.regex())) {
             if (pattern.message().isEmpty()) {

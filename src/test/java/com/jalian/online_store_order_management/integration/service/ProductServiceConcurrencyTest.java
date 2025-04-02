@@ -21,6 +21,23 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+/**
+ * The ProductServiceConcurrencyTest class performs integration tests to verify concurrent operations
+ * on product inventory.
+ * <p>
+ * It tests the following scenarios:
+ * <ul>
+ *   <li>Concurrent product charging.</li>
+ *   <li>Concurrent product discharging.</li>
+ *   <li>Concurrent mixed product operations (charging and discharging) with task shuffling.</li>
+ *   <li>Concurrent illegal discharge attempts that should throw exceptions.</li>
+ * </ul>
+ * The tests use virtual threads (via Executors.newVirtualThreadPerTaskExecutor())
+ * and Spring's transaction management to simulate concurrent access.
+ * </p>
+ *
+ * @author amirhosein jalian
+ */
 @SpringBootTest
 public class ProductServiceConcurrencyTest {
 
@@ -42,12 +59,19 @@ public class ProductServiceConcurrencyTest {
     private final long initialInventory = 0L;
     private final long highInventory = 1000L;
 
+    /**
+     * Sets up a new store and product before each test.
+     * <p>
+     * The product is initialized with a specified inventory value.
+     * </p>
+     */
     @BeforeEach
     public void setup() {
         storeId = storeService.addStore(new AddStoreDto("Test Store " + UUID.randomUUID()));
         var productDto = new ProductDto("Test Product", "Test Description", 100.0, storeId);
         productId = productService.addProduct(productDto);
 
+        // Set the product's inventory to the initial value.
         var opt = productDao.findById(productId);
         opt.ifPresent(product -> {
             product.setInventory(initialInventory);
@@ -55,11 +79,23 @@ public class ProductServiceConcurrencyTest {
         });
     }
 
+    /**
+     * Cleans up the created product after each test.
+     */
     @AfterEach
     public void cleanup() {
         productDao.deleteById(productId);
     }
 
+    /**
+     * Tests concurrent charging of a product's inventory.
+     * <p>
+     * A specified number of virtual threads concurrently perform a charge operation.
+     * The test asserts that the final inventory is as expected.
+     * </p>
+     *
+     * @throws InterruptedException if the thread is interrupted while waiting.
+     */
     @Test
     public void testConcurrentProductCharge() throws InterruptedException {
         int threadCount = 100;
@@ -87,6 +123,15 @@ public class ProductServiceConcurrencyTest {
         assertEquals(expectedInventory, product.getInventory(), "Concurrent charge failed.");
     }
 
+    /**
+     * Tests concurrent discharging of a product's inventory.
+     * <p>
+     * The product is first set to a high inventory value. Then, a specified number of virtual threads concurrently
+     * perform a discharge operation. The final inventory is then verified.
+     * </p>
+     *
+     * @throws InterruptedException if the thread is interrupted while waiting.
+     */
     @Test
     public void testConcurrentProductDischarge() throws InterruptedException {
         setProductInventory(highInventory);
@@ -119,6 +164,16 @@ public class ProductServiceConcurrencyTest {
         assertEquals(expectedInventory, product.getInventory(), "Concurrent discharge failed.");
     }
 
+    /**
+     * Tests concurrent mixed operations (both charging and discharging) on a product's inventory.
+     * <p>
+     * A total number of virtual threads, divided between charging and discharging tasks, are executed concurrently.
+     * The tasks are shuffled to simulate unpredictable execution order.
+     * The final inventory is then verified against the expected value.
+     * </p>
+     *
+     * @throws InterruptedException if the thread is interrupted while waiting.
+     */
     @Test
     public void testConcurrentMixedProductOperations() throws InterruptedException {
         setProductInventory(highInventory);
@@ -134,6 +189,7 @@ public class ProductServiceConcurrencyTest {
         var latch = new CountDownLatch(totalThreads);
         var tasks = new CopyOnWriteArrayList<Runnable>();
 
+        // Create charging tasks.
         for (int i = 0; i < chargeThreads; i++) {
             tasks.add(() -> {
                 try {
@@ -145,6 +201,7 @@ public class ProductServiceConcurrencyTest {
             });
         }
 
+        // Create discharging tasks.
         for (int i = 0; i < dischargeThreads; i++) {
             tasks.add(() -> {
                 try {
@@ -159,6 +216,7 @@ public class ProductServiceConcurrencyTest {
             });
         }
 
+        // Shuffle tasks to randomize execution order.
         Collections.shuffle(tasks);
 
         try (var executor = Executors.newVirtualThreadPerTaskExecutor()) {
@@ -170,6 +228,15 @@ public class ProductServiceConcurrencyTest {
         assertEquals(expectedInventory, product.getInventory(), "Mixed concurrent operations with shuffle failed.");
     }
 
+    /**
+     * Tests concurrent illegal discharge operations.
+     * <p>
+     * This test sets the product inventory to a low value and attempts to discharge more than available concurrently.
+     * It verifies that exceptions are thrown and that the inventory does not go negative.
+     * </p>
+     *
+     * @throws InterruptedException if the thread is interrupted while waiting.
+     */
     @Test
     public void testConcurrentIllegalDischarge() throws InterruptedException {
         setProductInventory(50L);
@@ -209,12 +276,22 @@ public class ProductServiceConcurrencyTest {
         assertTrue(exceptionCount.get() > 0, "No exception was thrown for illegal discharge.");
     }
 
+    /**
+     * Sets the inventory of the product to the specified value within a transaction.
+     *
+     * @param inventory the inventory value to set.
+     */
     private void setProductInventory(long inventory) {
         var product = fetchProductInTransaction();
         product.setInventory(inventory);
         productDao.save(product);
     }
 
+    /**
+     * Fetches the product entity within a new transaction.
+     *
+     * @return the {@link Product} entity.
+     */
     private Product fetchProductInTransaction() {
         return new TransactionTemplate(transactionManager)
                 .execute(status -> productDao.findByIdSafe(productId).orElseThrow());

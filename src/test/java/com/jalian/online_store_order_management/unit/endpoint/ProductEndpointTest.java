@@ -18,6 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+
 import static org.hamcrest.Matchers.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -26,6 +27,15 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+/**
+ * Unit tests for the {@link ProductEndpoint} class.
+ * <p>
+ * This class tests various endpoint scenarios for product-related operations such as adding a product,
+ * fetching product details, charging a product, and handling validation and exception cases.
+ * </p>
+ *
+ * @author amirhosein jalian
+ */
 @ExtendWith(MockitoExtension.class)
 public class ProductEndpointTest {
 
@@ -38,6 +48,9 @@ public class ProductEndpointTest {
     @Mock
     private ProductService productService;
 
+    /**
+     * Initializes the mock MVC and sets up the ProductEndpoint before each test.
+     */
     @BeforeEach
     void setUp() {
         mockMvc = MockMvcBuilders.standaloneSetup(productEndpoint)
@@ -45,24 +58,32 @@ public class ProductEndpointTest {
                 .build();
     }
 
+    /**
+     * Tests adding a product and checking the response.
+     */
     @Test
     void addProduct_success() throws Exception {
         var dto = new ProductDto("Product A", "Description A", 100.0, 10L);
         when(productService.addProduct(any(ProductDto.class))).thenReturn(1L);
+
         mockMvc.perform(post("/products/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.result", is(1)))
-                .andExpect(jsonPath("$.message", is("product added successfully")))
+                .andExpect(jsonPath("$.message", is("Product added successfully")))
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
+    /**
+     * Tests adding a product and handling validation exception.
+     */
     @Test
     void addProduct_exception() throws Exception {
         var dto = new ProductDto("Product A", "Description A", 100.0, 10L);
         when(productService.addProduct(any(ProductDto.class)))
                 .thenThrow(new ValidationException("Invalid product data"));
+
         mockMvc.perform(post("/products/add")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(dto)))
@@ -72,10 +93,14 @@ public class ProductEndpointTest {
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
+    /**
+     * Tests fetching a product by ID and checking the response.
+     */
     @Test
     void fetchProduct_success() throws Exception {
         var fetchDto = new ProductFetchDto(1L, "Product A", "Description A", 100.0, 50, "Test Store");
         when(productService.getProductById(1L)).thenReturn(fetchDto);
+
         mockMvc.perform(get("/products/find/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.result.id", is(1)))
@@ -88,23 +113,30 @@ public class ProductEndpointTest {
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
+    /**
+     * Tests the scenario where a product is not found by ID and the appropriate exception is thrown.
+     */
     @Test
     void fetchProduct_notFound_exception() throws Exception {
         when(productService.getProductById(1L))
                 .thenThrow(new EntityNotFoundException("Product", "id", "1"));
+
         mockMvc.perform(get("/products/find/1"))
-                // GlobalExceptionHandler maps EntityNotFoundException to HTTP 404
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.result", is(-1)))
                 .andExpect(jsonPath("$.message", containsString("Product")))
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
+    /**
+     * Tests charging a product and checking the response.
+     */
     @Test
     void chargeProduct_success() throws Exception {
         var opDto = new ProductOperationDto(1L, 5);
         var fetchDto = new ProductFetchDto(1L, "Product A", "Description A", 100.0, 45, "Test Store");
         when(productService.chargeProduct(any(ProductOperationDto.class))).thenReturn(fetchDto);
+
         mockMvc.perform(put("/products/charge")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(opDto)))
@@ -116,11 +148,15 @@ public class ProductEndpointTest {
                 .andExpect(jsonPath("$.timestamp", notNullValue()));
     }
 
+    /**
+     * Tests charging a product and handling validation exception.
+     */
     @Test
     void chargeProduct_exception() throws Exception {
         var opDto = new ProductOperationDto(1L, 5);
         when(productService.chargeProduct(any(ProductOperationDto.class)))
                 .thenThrow(new ValidationException("Operation failed"));
+
         mockMvc.perform(put("/products/charge")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(opDto)))
