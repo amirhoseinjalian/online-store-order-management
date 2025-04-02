@@ -2,6 +2,10 @@ package com.jalian.online_store_order_management.service;
 
 import com.jalian.online_store_order_management.domain.Store;
 import com.jalian.online_store_order_management.dto.AddStoreDto;
+import com.jalian.online_store_order_management.dto.AddUserToStoreDto;
+import com.jalian.online_store_order_management.dto.UserFetchDto;
+
+import java.util.List;
 
 /**
  * The StoreService interface defines the operations for managing stores within the system.
@@ -59,4 +63,17 @@ public interface StoreService {
      * @return {@code true} if the user belongs to the store; {@code false} otherwise.
      */
     boolean belongToStore(Long storeId, Long userId);
+
+    /**
+     * Adds a user to a store.
+     * <p>
+     * This method accepts an {@link com.jalian.online_store_order_management.dto.AddUserToStoreDto} which contains
+     * the unique identifiers of the user and the store. The service will add the specified user to the store and
+     * return an updated list of users associated with that store as {@link com.jalian.online_store_order_management.dto.UserFetchDto} objects.
+     * </p>
+     *
+     * @param addUserToStoreDto the data transfer object containing the user ID and store ID.
+     * @return a list of {@link com.jalian.online_store_order_management.dto.UserFetchDto} representing the updated set of users in the store.
+     */
+    List<UserFetchDto> addUserToStore(AddUserToStoreDto addUserToStoreDto);
 }
