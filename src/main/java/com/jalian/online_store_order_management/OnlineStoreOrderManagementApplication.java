@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableJpaAuditing
 @EnableTransactionManagement
 @EnableRetry
-@EnableAsync
+@EnableAsync(proxyTargetClass = true)
 @PropertySource("classpath:pay-retry.properties")
 @EnableAspectJAutoProxy(exposeProxy = true)
 public class OnlineStoreOrderManagementApplication {

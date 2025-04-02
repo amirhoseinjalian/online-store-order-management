@@ -8,18 +8,23 @@ import com.jalian.online_store_order_management.domain.Order;
 import com.jalian.online_store_order_management.domain.Product;
 import com.jalian.online_store_order_management.domain.User;
 import com.jalian.online_store_order_management.dto.UpdateBalanceDto;
+import com.jalian.online_store_order_management.service.ProductService;
 import com.jalian.online_store_order_management.service.UserService;
 import com.jalian.online_store_order_management.service.impl.ASyncPayServiceImpl;
+import com.jalian.online_store_order_management.service.impl.RecoveryPay;
 import com.jalian.online_store_order_management.service.impl.SyncPayServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.ArgumentMatcher;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.Duration;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
+
 import static org.awaitility.Awaitility.await;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -45,7 +50,13 @@ import static org.mockito.Mockito.*;
 public class PayServiceTest {
 
     @Mock
+    private ProductService productService;
+
+    @Mock
     private UserService userService;
+
+    @Mock
+    private RecoveryPay recoveryPay;
 
     @Mock
     private OrderDao orderDao;
@@ -64,7 +75,8 @@ public class PayServiceTest {
 
     @BeforeEach
     void setUp() {
-        asyncPayService = new ASyncPayServiceImpl(userService, orderDao);
+        asyncPayService = new ASyncPayServiceImpl(userService, orderDao, productService);
+        asyncPayService.setRecoveryPay(recoveryPay);
         user = new User();
         user.setId(1L);
 
@@ -157,6 +169,15 @@ public class PayServiceTest {
             }
             return o;
         });
+
+        // Stub recoveryPay to update the order status to FAILED
+        doAnswer(invocation -> {
+            Order o = invocation.getArgument(0);
+            o.setOrderStatus(OrderStatus.FAILED);
+            orderDao.save(o);
+            return null;
+        }).when(recoveryPay).recoverPayment(any(Order.class), anyList(), any(OrderDao.class), any(ProductService.class));
+
         asyncPayService.pay(user, order, List.of(item1, item2));
         await().atMost(Duration.ofSeconds(5)).untilAsserted(() ->
                 assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.FAILED)

@@ -5,9 +5,12 @@ import com.jalian.online_store_order_management.dao.OrderDao;
 import com.jalian.online_store_order_management.domain.Item;
 import com.jalian.online_store_order_management.domain.Order;
 import com.jalian.online_store_order_management.domain.User;
+import com.jalian.online_store_order_management.dto.ProductOperationDto;
+import com.jalian.online_store_order_management.service.ProductService;
 import com.jalian.online_store_order_management.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.scheduling.annotation.Async;
@@ -38,6 +41,13 @@ import java.util.List;
 public non-sealed class ASyncPayServiceImpl extends AbstractPayService {
 
     private final OrderDao orderDao;
+    private final ProductService productService;
+    private RecoveryPay recoveryPay;
+
+    @Autowired
+    public void setRecoveryPay(RecoveryPay recoveryPay) {
+        this.recoveryPay = recoveryPay;
+    }
 
     /**
      * The RetryTemplate used for retrying the payment operation.
@@ -55,9 +65,10 @@ public non-sealed class ASyncPayServiceImpl extends AbstractPayService {
      * @param userService the service used for user operations.
      * @param orderDao    the data access object for order entities.
      */
-    public ASyncPayServiceImpl(UserService userService, OrderDao orderDao) {
+    public ASyncPayServiceImpl(UserService userService, OrderDao orderDao, ProductService productService) {
         super(userService);
         this.orderDao = orderDao;
+        this.productService = productService;
         this.retryTemplate = RetryTemplate.builder()
                 .maxAttempts(7)
                 .fixedBackoff(150)
@@ -78,7 +89,6 @@ public non-sealed class ASyncPayServiceImpl extends AbstractPayService {
      */
     @Override
     @Async
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void pay(User user, Order order, List<Item> items) {
         retryTemplate.execute(context -> {
             log.info("Retry number: {}", context.getRetryCount());
@@ -88,8 +98,7 @@ public non-sealed class ASyncPayServiceImpl extends AbstractPayService {
             log.info("Payment done for order {}", order.getId());
             return null;
         }, context -> {
-            order.setOrderStatus(OrderStatus.FAILED);
-            orderDao.save(order);
+            recoveryPay.recoverPayment(order, items, orderDao, productService);
             log.warn("Retry for payment for order {} failed", order.getId(), context.getLastThrowable());
             return null;
         });

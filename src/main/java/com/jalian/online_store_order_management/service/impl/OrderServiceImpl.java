@@ -48,7 +48,7 @@ public class OrderServiceImpl implements OrderService {
         var savedOrder = orderDao.save(order);
         var itemsToPay = itemService.saveItems(dto.items(), savedOrder);
         var user = userService.findUserEntityById(dto.userId());
-        payService.pay(user, order, itemsToPay);
+        payService.pay(user, savedOrder, itemsToPay);
         orderDao.save(savedOrder);
         return savedOrder.getId();
     }
