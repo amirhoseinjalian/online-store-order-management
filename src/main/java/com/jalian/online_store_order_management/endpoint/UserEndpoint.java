@@ -1,5 +1,6 @@
 package com.jalian.online_store_order_management.endpoint;
 
+import com.jalian.online_store_order_management.dto.UpdateBalanceDto;
 import com.jalian.online_store_order_management.dto.UserFetchDto;
 import com.jalian.online_store_order_management.dto.UserRegisterDto;
 import com.jalian.online_store_order_management.exception.DuplicateUsername;
@@ -40,5 +41,14 @@ public class UserEndpoint {
     public ResponseEntity<BaseResponse<UserFetchDto>> findUserById(@PathVariable Long id) {
         var user = userService.findUserById(id);
         return new ResponseEntity<>(new BaseResponse<>(user, "User fetched successfully"), HttpStatus.OK);
+    }
+
+    @PutMapping("/update-balance")
+    public ResponseEntity<BaseResponse<UserFetchDto>> register(@RequestBody UpdateBalanceDto dto) {
+        var newUser = userService.updateBalance(dto);
+        return new ResponseEntity<>(
+                new BaseResponse<>(newUser, "Balance updated successfully"),
+                HttpStatus.OK
+        );
     }
 }

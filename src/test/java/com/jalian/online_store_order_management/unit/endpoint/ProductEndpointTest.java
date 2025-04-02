@@ -101,11 +101,11 @@ public class ProductEndpointTest {
     }
 
     @Test
-    void dischargeProduct_success() throws Exception {
+    void chargeProduct_success() throws Exception {
         var opDto = new ProductOperationDto(1L, 5);
         var fetchDto = new ProductFetchDto(1L, "Product A", "Description A", 100.0, 45, "Test Store");
-        when(productService.dischargeProduct(any(ProductOperationDto.class))).thenReturn(fetchDto);
-        mockMvc.perform(put("/products/discharge")
+        when(productService.chargeProduct(any(ProductOperationDto.class))).thenReturn(fetchDto);
+        mockMvc.perform(put("/products/charge")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(opDto)))
                 .andExpect(status().isOk())
@@ -117,11 +117,11 @@ public class ProductEndpointTest {
     }
 
     @Test
-    void dischargeProduct_exception() throws Exception {
+    void chargeProduct_exception() throws Exception {
         var opDto = new ProductOperationDto(1L, 5);
-        when(productService.dischargeProduct(any(ProductOperationDto.class)))
+        when(productService.chargeProduct(any(ProductOperationDto.class)))
                 .thenThrow(new ValidationException("Operation failed"));
-        mockMvc.perform(put("/products/discharge")
+        mockMvc.perform(put("/products/charge")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(opDto)))
                 .andExpect(status().isBadRequest())
