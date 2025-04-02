@@ -1,0 +1,334 @@
+{
+	"info": {
+		"_postman_id": "bc9678b2-0365-4977-8d51-90061fa4da32",
+		"name": "online-store",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23808986",
+		"_collection_link": "https://bold-crescent-682543.postman.co/workspace/spring_security~c2cf02f9-5198-4e97-a5f3-04c3fb70193e/collection/23808986-bc9678b2-0365-4977-8d51-90061fa4da32?action=share&source=collection_link&creator=23808986"
+	},
+	"item": [
+		{
+			"name": "user",
+			"item": [
+				{
+					"name": "find user by id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/online-store/users/id/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"users",
+								"id",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "register user",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\": \"ali\",\n    \"password\": \"123\",\n    \"firstName\": \"ali\",\n    \"lastName\": \"jalian\",\n    \"email\": \"ali@gmail.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/online-store/users/register",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"users",
+								"register"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "find user by username",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/online-store/users/username/ali",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"users",
+								"username",
+								"ali"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "update balance",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"amount\": 1000,\n    \"operation\": \"PLUS\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/online-store/users/update-balance",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"users",
+								"update-balance"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "store",
+			"item": [
+				{
+					"name": "add store",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "X-Request-ID",
+								"value": "6fd2e579-5fc1-464d-8c08-f2403e6506ec",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"snap\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/online-store/stores/add",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"stores",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add user to store",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"storeId\": 1\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/online-store/stores/add-user",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"stores",
+								"add-user"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "product",
+			"item": [
+				{
+					"name": "add product",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"book\",\n    \"description\": \"riazi\",\n    \"price\": \"1000\",\n    \"storeId\": \"1\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/online-store/products/add",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"products",
+								"add"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "find product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "localhost:8080/online-store/products/find/1",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"products",
+								"find",
+								"1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "charge product",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": 1,\n    \"amount\": \"10\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/online-store/products/charge",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"products",
+								"charge"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "order",
+			"item": [
+				{
+					"name": "add order sync",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"storeId\": 1,\n    \"items\": [\n        {\n            \"productId\": 1,\n            \"count\": 5\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/online-store/orders/add/sync",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"orders",
+								"add",
+								"sync"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "add order async",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\": 1,\n    \"storeId\": 1,\n    \"items\": [\n        {\n            \"productId\": 1,\n            \"count\": 5\n        }\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:8080/online-store/orders/add/async",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"online-store",
+								"orders",
+								"add",
+								"async"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
