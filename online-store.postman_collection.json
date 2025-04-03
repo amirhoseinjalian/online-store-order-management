@@ -16,13 +16,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/online-store/users/id/1",
+							"raw": "{{host}}:{{port}}/{{base-path}}/users/id/1",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"users",
 								"id",
 								"1"
@@ -46,13 +46,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/online-store/users/register",
+							"raw": "{{host}}:{{port}}/{{base-path}}/users/register",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"users",
 								"register"
 							]
@@ -66,13 +66,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/online-store/users/username/ali",
+							"raw": "{{host}}:{{port}}/{{base-path}}/users/username/ali",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"users",
 								"username",
 								"ali"
@@ -88,7 +88,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"userId\": 1,\n    \"amount\": 1000,\n    \"operation\": \"PLUS\"\n}",
+							"raw": "{\n    \"userId\": 1,\n    \"amount\": 200000000,\n    \"operation\": \"PLUS\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -96,13 +96,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/online-store/users/update-balance",
+							"raw": "{{host}}:{{port}}/{{base-path}}/users/update-balance",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"users",
 								"update-balance"
 							]
@@ -136,13 +136,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/online-store/stores/add",
+							"raw": "{{host}}:{{port}}/{{base-path}}/stores/add",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"stores",
 								"add"
 							]
@@ -165,13 +165,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/online-store/stores/add-user",
+							"raw": "{{host}}:{{port}}/{{base-path}}/stores/add-user",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"stores",
 								"add-user"
 							]
@@ -199,13 +199,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/online-store/products/add",
+							"raw": "{{host}}:{{port}}/{{base-path}}/products/add",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"products",
 								"add"
 							]
@@ -219,13 +219,13 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "localhost:8080/online-store/products/find/1",
+							"raw": "{{host}}:{{port}}/{{base-path}}/products/find/1",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"products",
 								"find",
 								"1"
@@ -249,13 +249,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/online-store/products/charge",
+							"raw": "{{host}}:{{port}}/{{base-path}}/products/charge",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"products",
 								"charge"
 							]
@@ -283,13 +283,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/online-store/orders/add/sync",
+							"raw": "{{host}}:{{port}}/{{base-path}}/orders/add/sync",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"orders",
 								"add",
 								"sync"
@@ -313,13 +313,13 @@
 							}
 						},
 						"url": {
-							"raw": "localhost:8080/online-store/orders/add/async",
+							"raw": "{{host}}:{{port}}/{{base-path}}/orders/add/async",
 							"host": [
-								"localhost"
+								"{{host}}"
 							],
-							"port": "8080",
+							"port": "{{port}}",
 							"path": [
-								"online-store",
+								"{{base-path}}",
 								"orders",
 								"add",
 								"async"
@@ -327,8 +327,68 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "find order",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{host}}:{{port}}/{{base-path}}/orders/find/3",
+							"host": [
+								"{{host}}"
+							],
+							"port": "{{port}}",
+							"path": [
+								"{{base-path}}",
+								"orders",
+								"find",
+								"3"
+							]
+						}
+					},
+					"response": []
 				}
 			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "host",
+			"value": "localhost",
+			"type": "string"
+		},
+		{
+			"key": "port",
+			"value": "8080",
+			"type": "string"
+		},
+		{
+			"key": "base-path",
+			"value": "online-store",
+			"type": "string"
 		}
 	]
 }
